@@ -1,0 +1,78 @@
+{
+  "dart.analysisExcludedFolders": [
+    "bricks",
+    ".dart_tool",
+    "build",
+    ".fvm"
+  ],
+  "dart.flutterSdkPath": ".fvm/versions/3.32.8",
+  "dart.previewFlutterUiGuides": true,
+  "dart.previewFlutterUiGuidesCustomTracking": true,
+  "dart.debugExternalPackageLibraries": true,
+  "dart.debugSdkLibraries": false,
+  "dart.enableSdkFormatter": true,
+  "debug.openDebug": "openOnDebugBreak",
+  "debug.internalConsoleOptions": "openOnSessionStart",
+  "dart.debuggerInspectWidgetAtCurrentLocation": true,
+  "dart.showDebuggerNumbersInSidebar": true,
+  "dart.hotReloadOnSave": "all",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.minimap.enabled": true,
+  "editor.renderWhitespace": "boundary",
+  "editor.suggestSelection": "first",
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "files.exclude": {
+    "**/*.g.dart": true,
+    "**/*.freezed.dart": true
+  },
+  "workbench.colorCustomizations": {
+    "tab.activeBorderTop": "#FFE81F",
+    "statusBar.foreground": "#ffffff",
+    "editorError.foreground": "#ff0000",
+    "editorWarning.foreground": "#ffa500",
+    "editorInfo.foreground": "#2196f3",
+    "gitDecoration.modifiedResourceForeground": "#e2c08d",
+    "gitDecoration.untrackedResourceForeground": "#73c991",
+    "statusBar.background": "#0D47A1",
+    "tab.activeBorder": "#1976D2",
+    "activityBarBadge.background": "#1565C0"
+  },
+  "workbench.editor.enablePreview": true,
+  "[dart]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.rulers": [
+      80
+    ],
+    "editor.selectionHighlight": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "matchingDocuments",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "always",
+      "source.addMissingImports": "explicit"
+    },
+    "editor.fontSize": 12,
+    "editor.fontFamily": "FiraCode-Retina",
+    "editor.fontLigatures": true,
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.cursorBlinking": "smooth",
+    "editor.linkedEditing": true,
+    "editor.stickyScroll.enabled": true,
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+    "editor.guides.bracketPairsHorizontal": true,
+    "editor.inlayHints.enabled": "on",
+    "editor.semanticHighlighting.enabled": true
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.dart": "$(capture).g.dart, $(capture).freezed.dart"
+  },
+  "problems.decorations.enabled": true,
+  "problems.autoReveal": true,
+  "problems.showCurrentInStatus": true
+}
