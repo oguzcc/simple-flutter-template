@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 /// Comprehensive RevenueCat Purchase Service
-/// 
+///
 /// Features:
 /// - Complete RevenueCat SDK integration
 /// - Purchase flow management
@@ -18,14 +18,15 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 class PurchaseService {
   PurchaseService._internal();
   static PurchaseService? _instance;
-  static PurchaseService get instance => _instance ??= PurchaseService._internal();
+  static PurchaseService get instance =>
+      _instance ??= PurchaseService._internal();
 
   bool _isInitialized = false;
   CustomerInfo? _cachedCustomerInfo;
   List<Package>? _cachedPackages;
 
   /// Initialize RevenueCat SDK
-  /// 
+  ///
   /// Must be called before any other purchase operations
   /// Usually called during app startup
   Future<bool> initialize() async {
@@ -42,8 +43,10 @@ class PurchaseService {
       }
 
       // Configure RevenueCat
-      final configuration = PurchasesConfiguration(PurchaseConfig.dummyRevenueCatApiKey);
-      
+      final configuration = PurchasesConfiguration(
+        PurchaseConfig.dummyRevenueCatApiKey,
+      );
+
       if (kDebugMode) {
         // Enable debug logs in development
         await Purchases.setLogLevel(LogLevel.debug);
@@ -67,7 +70,9 @@ class PurchaseService {
 
       return true;
     } on PlatformException catch (e) {
-      log('❌ Platform exception during RevenueCat initialization: ${e.code} - ${e.message}');
+      log(
+        '❌ Platform exception during RevenueCat initialization: ${e.code} - ${e.message}',
+      );
       return false;
     } catch (e) {
       log('❌ Unexpected error during RevenueCat initialization: $e');
@@ -80,10 +85,10 @@ class PurchaseService {
     try {
       // Load customer info
       await getCustomerInfo();
-      
+
       // Load available offerings
       await getOfferings();
-      
+
       log('ℹ️ Initial purchase data loaded');
     } catch (e) {
       log('⚠️ Failed to load initial purchase data: $e');
@@ -92,7 +97,7 @@ class PurchaseService {
   }
 
   /// Get current customer info
-  /// 
+  ///
   /// Returns cached info if available, otherwise fetches from RevenueCat
   Future<CustomerInfo?> getCustomerInfo({bool forceRefresh = false}) async {
     if (!_isInitialized) {
@@ -106,8 +111,10 @@ class PurchaseService {
       }
 
       _cachedCustomerInfo = await Purchases.getCustomerInfo();
-      log('ℹ️ Customer info loaded: ${_cachedCustomerInfo?.activeSubscriptions.length ?? 0} active subscriptions');
-      
+      log(
+        'ℹ️ Customer info loaded: ${_cachedCustomerInfo?.activeSubscriptions.length ?? 0} active subscriptions',
+      );
+
       return _cachedCustomerInfo;
     } on PlatformException catch (e) {
       log('❌ Error getting customer info: ${e.code} - ${e.message}');
@@ -119,7 +126,7 @@ class PurchaseService {
   }
 
   /// Get available offerings and packages
-  /// 
+  ///
   /// Returns cached offerings if available, otherwise fetches from RevenueCat
   Future<List<Package>> getOfferings({bool forceRefresh = false}) async {
     if (!_isInitialized) {
@@ -134,10 +141,12 @@ class PurchaseService {
 
       final offerings = await Purchases.getOfferings();
       final currentOffering = offerings.current;
-      
+
       if (currentOffering != null) {
         _cachedPackages = currentOffering.availablePackages;
-        log('ℹ️ Offerings loaded: ${_cachedPackages!.length} packages available');
+        log(
+          'ℹ️ Offerings loaded: ${_cachedPackages!.length} packages available',
+        );
       } else {
         _cachedPackages = [];
         log('⚠️ No current offering found');
@@ -154,7 +163,7 @@ class PurchaseService {
   }
 
   /// Purchase a package
-  /// 
+  ///
   /// Returns purchase result with comprehensive error handling
   Future<PurchaseResult> purchasePackage(Package package) async {
     if (!_isInitialized) {
@@ -162,42 +171,61 @@ class PurchaseService {
     }
 
     try {
-      log('🛒 Starting purchase for package: ${package.storeProduct.identifier}');
+      log(
+        '🛒 Starting purchase for package: ${package.storeProduct.identifier}',
+      );
 
-      final purchaseResult = await Purchases.purchasePackage(package);
-      
+      final purchaseResult = await Purchases.purchase(
+        PurchaseParams.package(package),
+      );
+
       // Update cached customer info
       _cachedCustomerInfo = purchaseResult.customerInfo;
 
-      final entitlementInfo = purchaseResult.customerInfo.entitlements.active[PurchaseConfig.dummyEntitlements['premium']];
-      
+      final entitlementInfo = purchaseResult
+          .customerInfo
+          .entitlements
+          .active[PurchaseConfig.dummyEntitlements['premium']];
+
       if (entitlementInfo != null) {
         log('✅ Purchase successful: ${package.storeProduct.identifier}');
         return PurchaseResult.success(purchaseResult.customerInfo);
       } else {
         log('⚠️ Purchase completed but no active entitlement found');
-        return PurchaseResult.error('Purchase completed but entitlement not activated');
+        return PurchaseResult.error(
+          'Purchase completed but entitlement not activated',
+        );
       }
     } on PlatformException catch (e) {
       log('❌ Purchase failed: ${e.code} - ${e.message}');
-      
+
       // Handle specific error cases
       String userFriendlyMessage;
       switch (e.code) {
         case 'purchase_cancelled':
-          userFriendlyMessage = PurchaseConfig.getErrorMessage('user-cancelled');
+          userFriendlyMessage = PurchaseConfig.getErrorMessage(
+            'user-cancelled',
+          );
         case 'store_problem':
           userFriendlyMessage = PurchaseConfig.getErrorMessage('store-problem');
         case 'network_error':
           userFriendlyMessage = PurchaseConfig.getErrorMessage('network-error');
         case 'purchase_not_allowed':
-          userFriendlyMessage = PurchaseConfig.getErrorMessage('not-allowed-to-make-payments');
+          userFriendlyMessage = PurchaseConfig.getErrorMessage(
+            'not-allowed-to-make-payments',
+          );
         case 'payment_pending':
-          userFriendlyMessage = PurchaseConfig.getErrorMessage('payment-pending');
+          userFriendlyMessage = PurchaseConfig.getErrorMessage(
+            'payment-pending',
+          );
         case 'invalid_credentials':
-          userFriendlyMessage = PurchaseConfig.getErrorMessage('invalid-credentials');
+          userFriendlyMessage = PurchaseConfig.getErrorMessage(
+            'invalid-credentials',
+          );
         case 'product_not_available':
-          userFriendlyMessage = PurchaseConfig.getErrorMessage('product-not-available');
+          userFriendlyMessage = PurchaseConfig.getErrorMessage(
+            'product-not-available',
+          );
         default:
           userFriendlyMessage = PurchaseConfig.getErrorMessage('unknown');
       }
@@ -210,7 +238,7 @@ class PurchaseService {
   }
 
   /// Restore previous purchases
-  /// 
+  ///
   /// Useful for users who reinstalled the app or signed in on a new device
   Future<PurchaseResult> restorePurchases() async {
     if (!_isInitialized) {
@@ -221,14 +249,16 @@ class PurchaseService {
       log('🔄 Restoring purchases...');
 
       final customerInfo = await Purchases.restorePurchases();
-      
+
       // Update cached customer info
       _cachedCustomerInfo = customerInfo;
 
       final activeEntitlements = customerInfo.entitlements.active;
-      
+
       if (activeEntitlements.isNotEmpty) {
-        log('✅ Purchases restored: ${activeEntitlements.length} active entitlements');
+        log(
+          '✅ Purchases restored: ${activeEntitlements.length} active entitlements',
+        );
         return PurchaseResult.success(customerInfo);
       } else {
         log('ℹ️ No previous purchases to restore');
@@ -236,26 +266,31 @@ class PurchaseService {
       }
     } on PlatformException catch (e) {
       log('❌ Restore failed: ${e.code} - ${e.message}');
-      
+
       String userFriendlyMessage;
       switch (e.code) {
         case 'network_error':
           userFriendlyMessage = PurchaseConfig.getErrorMessage('network-error');
         case 'invalid_credentials':
-          userFriendlyMessage = PurchaseConfig.getErrorMessage('invalid-credentials');
+          userFriendlyMessage = PurchaseConfig.getErrorMessage(
+            'invalid-credentials',
+          );
         default:
-          userFriendlyMessage = 'Failed to restore purchases. Please try again.';
+          userFriendlyMessage =
+              'Failed to restore purchases. Please try again.';
       }
 
       return PurchaseResult.error(userFriendlyMessage, e.code);
     } catch (e) {
       log('❌ Unexpected restore error: $e');
-      return PurchaseResult.error('Failed to restore purchases. Please try again.');
+      return PurchaseResult.error(
+        'Failed to restore purchases. Please try again.',
+      );
     }
   }
 
   /// Check if user has active entitlement
-  /// 
+  ///
   /// Useful for checking premium status throughout the app
   Future<bool> hasActiveEntitlement(String entitlementId) async {
     try {
@@ -274,7 +309,9 @@ class PurchaseService {
     final customerInfo = _cachedCustomerInfo;
     if (customerInfo == null) return false;
 
-    return customerInfo.entitlements.active.containsKey(PurchaseConfig.dummyEntitlements['premium']);
+    return customerInfo.entitlements.active.containsKey(
+      PurchaseConfig.dummyEntitlements['premium'],
+    );
   }
 
   /// Check if user has pro access
@@ -282,7 +319,9 @@ class PurchaseService {
     final customerInfo = _cachedCustomerInfo;
     if (customerInfo == null) return false;
 
-    return customerInfo.entitlements.active.containsKey(PurchaseConfig.dummyEntitlements['pro']);
+    return customerInfo.entitlements.active.containsKey(
+      PurchaseConfig.dummyEntitlements['pro'],
+    );
   }
 
   /// Check if user has ad-free access
@@ -290,9 +329,11 @@ class PurchaseService {
     final customerInfo = _cachedCustomerInfo;
     if (customerInfo == null) return false;
 
-    return customerInfo.entitlements.active.containsKey(PurchaseConfig.dummyEntitlements['ad_free']) ||
-           hasPremium || // Premium includes ad-free
-           hasPro;     // Pro includes ad-free
+    return customerInfo.entitlements.active.containsKey(
+          PurchaseConfig.dummyEntitlements['ad_free'],
+        ) ||
+        hasPremium || // Premium includes ad-free
+        hasPro; // Pro includes ad-free
   }
 
   /// Get subscription status information
@@ -304,10 +345,13 @@ class PurchaseService {
 
     if (customerInfo.entitlements.active.isNotEmpty) {
       // Check if any subscription is set to auto-renew
-      final hasAutoRenew = customerInfo.entitlements.active.values
-          .any((entitlement) => entitlement.willRenew);
-      
-      return hasAutoRenew ? SubscriptionStatus.active : SubscriptionStatus.expiring;
+      final hasAutoRenew = customerInfo.entitlements.active.values.any(
+        (entitlement) => entitlement.willRenew,
+      );
+
+      return hasAutoRenew
+          ? SubscriptionStatus.active
+          : SubscriptionStatus.expiring;
     }
 
     return SubscriptionStatus.none;
@@ -318,13 +362,15 @@ class PurchaseService {
     final customerInfo = _cachedCustomerInfo;
     if (customerInfo == null) return null;
 
-    final premiumEntitlement = customerInfo.entitlements.active[PurchaseConfig.dummyEntitlements['premium']];
+    final premiumEntitlement = customerInfo
+        .entitlements
+        .active[PurchaseConfig.dummyEntitlements['premium']];
     final expirationDate = premiumEntitlement?.expirationDate;
     return expirationDate != null ? DateTime.parse(expirationDate) : null;
   }
 
   /// Set user ID for RevenueCat
-  /// 
+  ///
   /// Call this when user signs in to associate purchases with user account
   Future<void> setUserId(String userId) async {
     if (!_isInitialized) return;
@@ -332,7 +378,7 @@ class PurchaseService {
     try {
       final loginResult = await Purchases.logIn(userId);
       _cachedCustomerInfo = loginResult.customerInfo;
-      
+
       log('ℹ️ User logged in to RevenueCat: $userId');
     } catch (e) {
       log('❌ Error setting user ID: $e');
@@ -340,7 +386,7 @@ class PurchaseService {
   }
 
   /// Clear user ID (logout)
-  /// 
+  ///
   /// Call this when user signs out
   Future<void> clearUserId() async {
     if (!_isInitialized) return;
@@ -348,7 +394,7 @@ class PurchaseService {
     try {
       final customerInfo = await Purchases.logOut();
       _cachedCustomerInfo = customerInfo;
-      
+
       log('ℹ️ User logged out from RevenueCat');
     } catch (e) {
       log('❌ Error clearing user ID: $e');
@@ -356,7 +402,7 @@ class PurchaseService {
   }
 
   /// Clear cached data
-  /// 
+  ///
   /// Useful for testing or when switching users
   void clearCache() {
     _cachedCustomerInfo = null;
@@ -381,7 +427,6 @@ class PurchaseService {
 
 /// Purchase operation result
 class PurchaseResult {
-
   const PurchaseResult._({
     required this.isSuccess,
     this.errorMessage,
@@ -390,10 +435,7 @@ class PurchaseResult {
   });
 
   factory PurchaseResult.success(CustomerInfo customerInfo) {
-    return PurchaseResult._(
-      isSuccess: true,
-      customerInfo: customerInfo,
-    );
+    return PurchaseResult._(isSuccess: true, customerInfo: customerInfo);
   }
 
   factory PurchaseResult.error(String message, [String? code]) {
@@ -413,9 +455,9 @@ class PurchaseResult {
 
 /// Subscription status enum
 enum SubscriptionStatus {
-  none,      // No active subscription
-  active,    // Active subscription with auto-renew
-  expiring,  // Active subscription but will expire (cancelled)
+  none, // No active subscription
+  active, // Active subscription with auto-renew
+  expiring, // Active subscription but will expire (cancelled)
 }
 
 /// Extension for SubscriptionStatus

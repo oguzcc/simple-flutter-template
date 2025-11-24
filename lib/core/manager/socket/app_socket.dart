@@ -5,13 +5,10 @@ import 'dart:io' show WebSocket;
 typedef OnStatusChange = void Function(SocketStatus);
 
 class AppSocket {
-  AppSocket({
-    required this.url,
-    required this.onStatusChange,
-    this.header,
-  });
-  final StreamController<String> controller =
-      StreamController.broadcast(sync: true);
+  AppSocket({required this.url, required this.onStatusChange, this.header});
+  final StreamController<String> controller = StreamController.broadcast(
+    sync: true,
+  );
   WebSocket? _channel;
   final String url;
   final Map<String, String>? header;
@@ -34,7 +31,7 @@ class AppSocket {
     _channel!.listen(_listen, onDone: _onDone, onError: _onError);
   }
 
-  void _thenDone(value) {
+  void _thenDone(dynamic value) {
     if (_channel == null) return;
     _log('then done');
     init();
@@ -84,5 +81,5 @@ enum SocketStatus {
   error,
   connectError,
   connectTimeout,
-  disconnect
+  disconnect,
 }

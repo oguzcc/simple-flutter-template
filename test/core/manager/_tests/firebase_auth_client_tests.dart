@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:daisy/core/manager/firebase/firebase_auth_client.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -52,26 +54,28 @@ void main() {
     socialLoginService = SocialLoginService();
 
     // Apple Sign-In için MethodChannel Mocklama
-    const channel =
-        MethodChannel('com.aboutyou.dart_packages.sign_in_with_apple');
+    const channel = MethodChannel(
+      'com.aboutyou.dart_packages.sign_in_with_apple',
+    );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-      if (methodCall.method == 'performAuthorizationRequest') {
-        return {
-          'authorizationCode': 'fake-auth-code',
-          'identityToken': 'fake-identity-token',
-          'email': 'test@example.com',
-          'givenName': 'John',
-          'familyName': 'Doe',
-        };
-      }
-      return null;
-    });
+          if (methodCall.method == 'performAuthorizationRequest') {
+            return {
+              'authorizationCode': 'fake-auth-code',
+              'identityToken': 'fake-identity-token',
+              'email': 'test@example.com',
+              'givenName': 'John',
+              'familyName': 'Doe',
+            };
+          }
+          return null;
+        });
   });
 
   tearDown(() {
-    const channel =
-        MethodChannel('com.aboutyou.dart_packages.sign_in_with_apple');
+    const channel = MethodChannel(
+      'com.aboutyou.dart_packages.sign_in_with_apple',
+    );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
   });
@@ -117,10 +121,12 @@ void main() {
           ),
         ).thenAnswer((_) async => mockAppleCredential);
 
-        when(() => mockAppleCredential.identityToken)
-            .thenReturn('fake-identity-token');
-        when(() => mockAppleCredential.authorizationCode)
-            .thenReturn('fake-auth-code');
+        when(
+          () => mockAppleCredential.identityToken,
+        ).thenReturn('fake-identity-token');
+        when(
+          () => mockAppleCredential.authorizationCode,
+        ).thenReturn('fake-auth-code');
 
         final result = await socialLoginService.appleLogin();
 

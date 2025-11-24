@@ -1,16 +1,41 @@
 import 'package:daisy/data/model/user_model.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:equatable/equatable.dart';
 
-part 'auth_model.freezed.dart';
-part 'auth_model.g.dart';
+class AuthModel extends Equatable {
+  const AuthModel({
+    this.token,
+    this.user = const UserModel(),
+  });
 
-@freezed
-class AuthModel with _$AuthModel {
-  const factory AuthModel({
+  final String? token;
+  final UserModel? user;
+
+  @override
+  List<Object?> get props => [token, user];
+
+  AuthModel copyWith({
     String? token,
-    @Default(UserModel()) UserModel? user,
-  }) = _AuthModel;
+    UserModel? user,
+  }) {
+    return AuthModel(
+      token: token ?? this.token,
+      user: user ?? this.user,
+    );
+  }
 
-  factory AuthModel.fromJson(Map<String, dynamic> json) =>
-      _$AuthModelFromJson(json);
+  factory AuthModel.fromJson(Map<String, dynamic> json) {
+    return AuthModel(
+      token: json['token'] as String?,
+      user: json['user'] != null
+          ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
+          : const UserModel(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (token != null) 'token': token,
+      if (user != null) 'user': user!.toJson(),
+    };
+  }
 }

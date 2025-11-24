@@ -2,10 +2,9 @@ import 'package:daisy/core/enum/common_enum.dart';
 import 'package:daisy/core/manager/firebase/firebase_request.dart';
 import 'package:daisy/core/manager/firebase/firebase_service.dart';
 import 'package:daisy/feature/home/model/tag_model.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'tag_cubit.freezed.dart';
 part 'tag_state.dart';
 
 class TagCubit extends Cubit<TagState> {

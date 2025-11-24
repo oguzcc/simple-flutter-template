@@ -8,12 +8,11 @@ import 'package:daisy/data/dto/auth/req_sign_up_dto.dart';
 import 'package:daisy/data/model/auth/login_response_model.dart';
 import 'package:daisy/data/model/auth_model.dart';
 import 'package:daisy/data/service/auth_service.dart';
+import 'package:equatable/equatable.dart';
 // New imports for social login
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
-part 'auth_cubit.freezed.dart';
 part 'auth_state.dart';
 
 /// Enhanced Auth Cubit with social login capabilities

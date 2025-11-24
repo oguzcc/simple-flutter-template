@@ -1,13 +1,12 @@
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class ForceUpdateManager {
   final _remoteConfig = FirebaseRemoteConfig.instance;
-  
+
   Future<void> initialize() async {
     try {
       await _remoteConfig.setConfigSettings(
@@ -60,16 +59,15 @@ class ForceUpdateManager {
       debugPrint('Update Required: ${config.isUpdateRequired}');
       debugPrint('Force Update Required: ${config.isForceUpdateRequired}');
 
-      final minVersion =
-          platform == 'android'
-              ? config.androidMinVersion
-              : config.iosMinVersion;
-      final currentRemoteVersion =
-          platform == 'android'
-              ? config.androidCurrentVersion
-              : config.iosCurrentVersion;
-      final storeUrl =
-          platform == 'android' ? config.androidStoreUrl : config.iosStoreUrl;
+      final minVersion = platform == 'android'
+          ? config.androidMinVersion
+          : config.iosMinVersion;
+      final currentRemoteVersion = platform == 'android'
+          ? config.androidCurrentVersion
+          : config.iosCurrentVersion;
+      final storeUrl = platform == 'android'
+          ? config.androidStoreUrl
+          : config.iosStoreUrl;
 
       debugPrint('📊 Version Comparison:');
       debugPrint('Min Required Version: $minVersion');
@@ -79,10 +77,9 @@ class ForceUpdateManager {
       final needsUpdate = _isVersionLower(currentVersion, minVersion);
       debugPrint('🔄 Needs Update: $needsUpdate');
 
-      final message =
-          Platform.localeName.split('_')[0] == 'tr'
-              ? config.updateMessageTr
-              : config.updateMessageEn;
+      final message = Platform.localeName.split('_')[0] == 'tr'
+          ? config.updateMessageTr
+          : config.updateMessageEn;
 
       if (needsUpdate) {
         return ForceUpdateStatus(
@@ -114,10 +111,14 @@ class ForceUpdateManager {
     final currentParts = currentVersion.split('+');
     final minParts = minVersion.split('+');
 
-    final currentVersionParts =
-        currentParts[0].split('.').map((e) => int.tryParse(e) ?? 0).toList();
-    final minVersionParts =
-        minParts[0].split('.').map((e) => int.tryParse(e) ?? 0).toList();
+    final currentVersionParts = currentParts[0]
+        .split('.')
+        .map((e) => int.tryParse(e) ?? 0)
+        .toList();
+    final minVersionParts = minParts[0]
+        .split('.')
+        .map((e) => int.tryParse(e) ?? 0)
+        .toList();
 
     while (currentVersionParts.length < minVersionParts.length) {
       currentVersionParts.add(0);

@@ -2,11 +2,10 @@ import 'dart:developer';
 
 import 'package:daisy/core/enum/common_enum.dart';
 import 'package:daisy/core/manager/purchase/purchase_service.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
-part 'purchase_cubit.freezed.dart';
 part 'purchase_state.dart';
 
 /// Purchase Cubit for managing in-app purchases and subscriptions

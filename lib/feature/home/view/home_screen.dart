@@ -1,4 +1,3 @@
-import 'package:daisy/core/analytics/analytics_client.dart';
 import 'package:daisy/core/extension/string_extension.dart';
 import 'package:daisy/core/mixin/image_picker_mixin.dart';
 import 'package:daisy/feature/home/cubit/tag_cubit.dart';
@@ -7,8 +6,6 @@ import 'package:daisy/localization/locale_keys/locale_keys.g.dart';
 import 'package:daisy/ui/modal/show.dart';
 import 'package:daisy/ui/widget/button/button.dart';
 import 'package:daisy/ui/widget/gap/gap.dart';
-import 'package:developer_command_center/developer_command_center.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,27 +25,6 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(LocaleKeys.common_home.t),
-        actions: [
-          if (kDebugMode)
-            IconButton(
-              icon: const Icon(Icons.developer_mode),
-              onPressed: () {
-                final analyticsClient = DaisyAnalyticsClient()..addMockData();
-                final dependencies = DeveloperCommandCenterDependencies(
-                  analyticsClient: analyticsClient,
-                );
-                
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (context) => DeveloperCommandCenter(
-                      dependencies: dependencies,
-                    ),
-                  ),
-                );
-              },
-              tooltip: 'Developer Console',
-            ),
-        ],
       ),
       body: BlocBuilder<TagCubit, TagState>(
         builder: (context, state) {

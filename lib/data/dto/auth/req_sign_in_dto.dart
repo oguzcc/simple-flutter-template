@@ -1,15 +1,38 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:equatable/equatable.dart';
 
-part 'req_sign_in_dto.freezed.dart';
-part 'req_sign_in_dto.g.dart';
+class ReqSignInDto extends Equatable {
+  const ReqSignInDto({
+    required this.email,
+    required this.password,
+  });
 
-@freezed
-class ReqSignInDto with _$ReqSignInDto {
-  const factory ReqSignInDto({
-    required String email,
-    required String password,
-  }) = _ReqSignInDto;
+  final String email;
+  final String password;
 
-  factory ReqSignInDto.fromJson(Map<String, dynamic> json) =>
-      _$ReqSignInDtoFromJson(json);
+  @override
+  List<Object?> get props => [email, password];
+
+  ReqSignInDto copyWith({
+    String? email,
+    String? password,
+  }) {
+    return ReqSignInDto(
+      email: email ?? this.email,
+      password: password ?? this.password,
+    );
+  }
+
+  factory ReqSignInDto.fromJson(Map<String, dynamic> json) {
+    return ReqSignInDto(
+      email: json['email'] as String,
+      password: json['password'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+      'password': password,
+    };
+  }
 }

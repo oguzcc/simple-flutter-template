@@ -8,8 +8,6 @@ import 'package:daisy/core/types/typedefs.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:network_logger/network_logger.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 /// Production DioClient with enhanced streaming capabilities
 class DioClient {
@@ -21,10 +19,6 @@ class DioClient {
       ..options.receiveTimeout = _apiOptions.receiveTimeout
       ..options.responseType = ResponseType.json
       ..interceptors.addAll([
-        PrettyDioLogger(
-          requestHeader: true,
-          requestBody: true,
-        ),
         ErrorHandlerInceptor(_dio, context),
         RefactoredStreamingInterceptor(
           deviceService: DeviceCapabilityService(),
@@ -38,7 +32,6 @@ class DioClient {
             return handler.next(options);
           },
         ),
-        NetworkLoggerInterceptor(),
       ]);
   }
 

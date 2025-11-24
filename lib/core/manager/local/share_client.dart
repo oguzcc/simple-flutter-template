@@ -5,7 +5,7 @@ import 'package:share_plus/share_plus.dart';
 class ShareClient {
   static Future<bool> share(String text) async {
     try {
-      await Share.share(text);
+      await SharePlus.instance.share(ShareParams(text: text));
       return true;
     } catch (e) {
       debugPrint('Error sharing: $e');

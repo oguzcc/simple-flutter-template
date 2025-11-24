@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:daisy/core/config/core_strings.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'conn_cubit.freezed.dart';
 part 'conn_state.dart';
 
 class ConnCubit extends Cubit<ConnState> {

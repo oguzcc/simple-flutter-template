@@ -5,7 +5,6 @@ import 'package:daisy/feature/auth/cubit/auth_cubit.dart';
 import 'package:daisy/feature/home/cubit/home_cubit.dart';
 import 'package:daisy/feature/home/cubit/tag_cubit.dart';
 import 'package:daisy/feature/purchase/cubit/purchase_cubit.dart';
-import 'package:daisy/feature/splash/cubit/video_splash_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 List<BlocProvider<StateStreamableSource<Object?>>> provider() {
@@ -33,9 +32,6 @@ List<BlocProvider<StateStreamableSource<Object?>>> provider() {
 
     /// Purchase Cubit
     BlocProvider<PurchaseCubit>(create: (context) => PurchaseCubit()),
-
-    /// Video Splash Cubit
-    BlocProvider<VideoSplashCubit>(create: (context) => VideoSplashCubit()),
 
     /// User Cubit
   ];

@@ -9,12 +9,15 @@ mixin _EnvironmentMixin {
       String envFile = '.env'; // default
 
       // Determine environment file based on flavor
-      if (flavor.flavorType == FlavorType.development) {
-        envFile = '.env.development';
-      } else if (flavor.flavorType == FlavorType.staging) {
-        envFile = '.env.staging';
-      } else if (flavor.flavorType == FlavorType.production) {
-        envFile = '.env.production';
+      switch (flavor.flavorType) {
+        case FlavorType.development:
+          envFile = '.env.development';
+        case FlavorType.staging:
+          envFile = '.env.staging';
+        case FlavorType.production:
+          envFile = '.env.production';
+        default:
+          envFile = '.env';
       }
 
       log('🔧 Loading environment file: $envFile');
@@ -32,7 +35,7 @@ mixin _EnvironmentMixin {
       }
     }
   }
-  
+
   /// Validate environment configuration
   Future<void> validateEnvironment() async {
     // Validate environment configuration
@@ -43,8 +46,10 @@ mixin _EnvironmentMixin {
       // Quick production readiness check in release mode
       final isReady = await EnvironmentValidationService.isProductionReady();
       if (!isReady) {
-        log('⚠️ Production deployment warnings detected. '
-            'Run in debug mode for details.');
+        log(
+          '⚠️ Production deployment warnings detected. '
+          'Run in debug mode for details.',
+        );
       }
     }
   }

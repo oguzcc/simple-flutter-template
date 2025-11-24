@@ -13,7 +13,8 @@ extension AnimationExtension on Widget {
       ) // runs after the above w/new duration
       .blurXY();
 
-  Animate get fadeIn => animate(
+  Animate get fadeIn =>
+      animate(
         delay: 1000.ms, // this delay only happens once at the very start
         onPlay: (controller) => controller.repeat(), // loop
       ).fadeIn(
@@ -31,14 +32,14 @@ extension AnimationExtension on Widget {
       .slide();
 
   Animate get toggle => Animate().toggle(
-        duration: 1.ms,
-        builder: (_, value, __) => AnimatedContainer(
-          duration: 1.seconds,
-          color: value ? Colors.red : Colors.green,
-        ),
-      );
+    duration: 1.ms,
+    builder: (_, value, _) => AnimatedContainer(
+      duration: 1.seconds,
+      color: value ? Colors.red : Colors.green,
+    ),
+  );
 
-  Animate get swap => Animate().swap(builder: (_, __) => this);
+  Animate get swap => Animate().swap(builder: (_, _) => this);
 
   Animate get shader => animate()
       .shader(duration: 2.seconds)

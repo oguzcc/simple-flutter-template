@@ -26,10 +26,7 @@ sealed class Show {
         borderRadius: BorderRadius.vertical(top: Radius.circular(radius ?? 24)),
       ),
       context: context,
-      builder: (ctx) => Padding(
-        padding: ctx.mediaViewInset,
-        child: child,
-      ),
+      builder: (ctx) => Padding(padding: ctx.mediaViewInset, child: child),
     );
   }
 
@@ -133,9 +130,7 @@ sealed class Show {
       SnackBar(
         backgroundColor: context.colorScheme.surface,
         content: Column(
-          children: [
-            Text(message, style: context.text.bodySmall),
-          ],
+          children: [Text(message, style: context.text.bodySmall)],
         ),
         behavior: SnackBarBehavior.floating,
       ),
@@ -195,10 +190,7 @@ sealed class Show {
 
   /// shows dialog
   static Future<T?> dialog<T>(BuildContext context, Widget child) async {
-    return showDialog<T>(
-      context: context,
-      builder: (context) => child,
-    );
+    return showDialog<T>(context: context, builder: (context) => child);
   }
 
   /// shows cupertino dialog
@@ -213,10 +205,7 @@ sealed class Show {
   }
 
   // shows cupertino modal popup
-  static Future<T?> cupertinoModalPopup<T>(
-    BuildContext context,
-    Widget child,
-  ) {
+  static Future<T?> cupertinoModalPopup<T>(BuildContext context, Widget child) {
     return showCupertinoModalPopup(
       context: context,
       barrierColor: Colors.black87,
@@ -244,8 +233,9 @@ sealed class Show {
       MaterialBanner(
         content: Text(
           message,
-          style: context.text.bodySmall
-              ?.copyWith(color: context.colorScheme.onSurface),
+          style: context.text.bodySmall?.copyWith(
+            color: context.colorScheme.onSurface,
+          ),
         ),
         actions: [
           TextButton(
@@ -254,8 +244,9 @@ sealed class Show {
             },
             child: Text(
               LocaleKeys.common_close.t,
-              style: context.text.bodySmall
-                  ?.copyWith(color: context.colorScheme.onSurface),
+              style: context.text.bodySmall?.copyWith(
+                color: context.colorScheme.onSurface,
+              ),
             ),
           ),
         ],
@@ -311,11 +302,9 @@ sealed class Show {
       context: context,
       barrierColor: Colors.black45,
       barrierLabel: 'Loading...',
-      pageBuilder: (_, __, ___) {
+      pageBuilder: (_, _, _) {
         return Center(
-          child: LoadingOverlay(
-            color: context.colorScheme.primary,
-          ),
+          child: LoadingOverlay(color: context.colorScheme.primary),
         );
       },
     );
@@ -330,9 +319,7 @@ class LoadingOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
+    return const Center(child: CircularProgressIndicator());
   }
 
   // @override

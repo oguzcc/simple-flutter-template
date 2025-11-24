@@ -1,4 +1,4 @@
-import 'package:daisy/core/enum/status_enum.dart';
+import 'package:daisy/core/enum/common_enum.dart';
 import 'package:daisy/core/extension/string_extension.dart';
 import 'package:daisy/data/model/auth/login_response_model.dart';
 import 'package:daisy/feature/auth/cubit/auth_cubit.dart';
@@ -15,18 +15,16 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(LocaleKeys.common_profile.t),
-      ),
+      appBar: AppBar(title: Text(LocaleKeys.common_profile.t)),
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           // Handle successful logout
           if (state.authStatus == AuthStatus.unauthenticated) {
             // Navigate to login screen
             context.goNamed(Screens.enhancedLogin.name);
-            
+
             // Show logout success message
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -41,7 +39,7 @@ class ProfileScreen extends StatelessWidget {
           final currentUser = state.currentUser;
           final userDisplayName = context.read<AuthCubit>().userDisplayName;
           final isAnonymous = context.read<AuthCubit>().isAnonymous;
-          
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -61,20 +59,22 @@ class ProfileScreen extends StatelessWidget {
                         CircleAvatar(
                           radius: 40,
                           backgroundColor: theme.primaryColor,
-                          backgroundImage: currentUser?.photoURL != null 
-                            ? NetworkImage(currentUser!.photoURL!)
-                            : null,
-                          child: currentUser?.photoURL == null 
-                            ? Icon(
-                                isAnonymous ? Icons.person_outline : Icons.person,
-                                size: 40,
-                                color: Colors.white,
-                              )
-                            : null,
+                          backgroundImage: currentUser?.photoURL != null
+                              ? NetworkImage(currentUser!.photoURL!)
+                              : null,
+                          child: currentUser?.photoURL == null
+                              ? Icon(
+                                  isAnonymous
+                                      ? Icons.person_outline
+                                      : Icons.person,
+                                  size: 40,
+                                  color: Colors.white,
+                                )
+                              : null,
                         ),
-                        
+
                         const Gap.md(),
-                        
+
                         // User Name
                         Text(
                           userDisplayName,
@@ -83,27 +83,33 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        
+
                         const Gap.xs(),
-                        
+
                         // User Email or Status
                         Text(
-                          currentUser?.email ?? 
-                          (isAnonymous ? 'Anonymous User' : 'No email'),
+                          currentUser?.email ??
+                              (isAnonymous ? 'Anonymous User' : 'No email'),
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                            color: theme.textTheme.bodyMedium?.color
+                                ?.withValues(alpha: 0.7),
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        
+
                         if (isAnonymous) ...[
                           const Gap.sm(),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.orange.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                              border: Border.all(
+                                color: Colors.orange.withValues(alpha: 0.3),
+                              ),
                             ),
                             child: Text(
                               'Guest Mode',
@@ -119,9 +125,9 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 const Gap.xl(),
-                
+
                 // Account Actions
                 Text(
                   'Account',
@@ -129,9 +135,9 @@ class ProfileScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                
+
                 const Gap.md(),
-                
+
                 // Login Type Information
                 _buildInfoCard(
                   context,
@@ -140,9 +146,9 @@ class ProfileScreen extends StatelessWidget {
                   subtitle: _getLoginTypeDisplayName(state.loginType),
                   iconColor: _getLoginTypeColor(state.loginType),
                 ),
-                
+
                 const Gap.md(),
-                
+
                 // User ID Information (for debug)
                 if (currentUser?.uid != null)
                   _buildInfoCard(
@@ -153,16 +159,16 @@ class ProfileScreen extends StatelessWidget {
                     iconColor: Colors.blue,
                     isMonospace: true,
                   ),
-                
+
                 const Gap.xl(),
-                
+
                 // Logout Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: state.status == Status.loading 
-                      ? null 
-                      : () => _showLogoutDialog(context),
+                    onPressed: state.status == Status.loading
+                        ? null
+                        : () => _showLogoutDialog(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
@@ -172,33 +178,35 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     child: state.status == Status.loading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.logout, size: 20),
-                            SizedBox(width: 8),
-                            Text(
-                              'Logout',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
                               ),
                             ),
-                          ],
-                        ),
+                          )
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.logout, size: 20),
+                              SizedBox(width: 8),
+                              Text(
+                                'Logout',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
                   ),
                 ),
-                
+
                 const Gap.md(),
-                
+
                 // Additional info for anonymous users
                 if (isAnonymous) ...[
                   Container(
@@ -206,7 +214,9 @@ class ProfileScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: Colors.blue.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,7 +269,7 @@ class ProfileScreen extends StatelessWidget {
     bool isMonospace = false,
   }) {
     final theme = Theme.of(context);
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -275,11 +285,7 @@ class ProfileScreen extends StatelessWidget {
               color: iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 20,
-            ),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -290,7 +296,9 @@ class ProfileScreen extends StatelessWidget {
                   title,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w500,
-                    color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                    color: theme.textTheme.bodyMedium?.color?.withValues(
+                      alpha: 0.7,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 2),

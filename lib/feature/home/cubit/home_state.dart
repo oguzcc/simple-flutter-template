@@ -2,10 +2,25 @@ part of 'home_cubit.dart';
 
 enum HomeStatus { initial, loading, success, error }
 
-@freezed
-class HomeState with _$HomeState {
-  const factory HomeState({
-    @Default(HomeStatus.initial) HomeStatus status,
+class HomeState extends Equatable {
+  const HomeState({
+    this.status = HomeStatus.initial,
+    this.errorMessage,
+  });
+
+  final HomeStatus status;
+  final String? errorMessage;
+
+  @override
+  List<Object?> get props => [status, errorMessage];
+
+  HomeState copyWith({
+    HomeStatus? status,
     String? errorMessage,
-  }) = _HomeState;
+  }) {
+    return HomeState(
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
 }

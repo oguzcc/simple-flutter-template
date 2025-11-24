@@ -1,16 +1,38 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:equatable/equatable.dart';
 
-part 'tag_model.freezed.dart';
-part 'tag_model.g.dart';
+class TagModel extends Equatable {
+  const TagModel({
+    this.id,
+    this.name,
+  });
 
-@freezed
-class TagModel with _$TagModel {
-  factory TagModel({
-    @JsonKey(includeToJson: false) String? id,
+  final String? id;
+  final String? name;
+
+  @override
+  List<Object?> get props => [id, name];
+
+  TagModel copyWith({
+    String? id,
     String? name,
-  }) = _TagModel;
-  TagModel._();
+  }) {
+    return TagModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
 
-  factory TagModel.fromJson(Map<String, dynamic> json) =>
-      _$TagModelFromJson(json);
+  factory TagModel.fromJson(Map<String, dynamic> json) {
+    return TagModel(
+      id: json['id'] as String?,
+      name: json['name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      // id is excluded from JSON (like @JsonKey(includeToJson: false))
+      if (name != null) 'name': name,
+    };
+  }
 }

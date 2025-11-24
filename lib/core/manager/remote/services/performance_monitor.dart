@@ -1,22 +1,19 @@
-import 'dart:async';
 import 'dart:math' as math;
-
-import 'package:flutter/foundation.dart';
 
 /// Performance monitoring and health checking service
 abstract interface class IPerformanceMonitor {
   /// Record a successful operation
   void recordSuccess(Duration duration, int bytesProcessed);
-  
+
   /// Record a failed operation
   void recordFailure(Duration duration, String reason);
-  
+
   /// Check system health
   HealthStatus getHealthStatus();
-  
+
   /// Get performance metrics
   PerformanceMetrics getMetrics();
-  
+
   /// Reset all metrics
   void reset();
 }
@@ -75,10 +72,7 @@ class PerformanceMetrics {
 
 /// Production performance monitor
 class PerformanceMonitor implements IPerformanceMonitor {
-  PerformanceMonitor({
-    this.maxSamples = 1000,
-    this.healthThreshold = 0.8,
-  });
+  PerformanceMonitor({this.maxSamples = 1000, this.healthThreshold = 0.8});
 
   final int maxSamples;
   final double healthThreshold;
@@ -86,7 +80,7 @@ class PerformanceMonitor implements IPerformanceMonitor {
   final List<Duration> _processingTimes = <Duration>[];
   final List<int> _bytesProcessed = <int>[];
   final List<String> _failureReasons = <String>[];
-  
+
   int _totalOperations = 0;
   int _successfulOperations = 0;
   int _failedOperations = 0;
@@ -97,10 +91,10 @@ class PerformanceMonitor implements IPerformanceMonitor {
     _totalOperations++;
     _successfulOperations++;
     _totalBytesProcessed += bytesProcessed;
-    
+
     _processingTimes.add(duration);
     _bytesProcessed.add(bytesProcessed);
-    
+
     _maintainSampleSize();
   }
 
@@ -108,10 +102,10 @@ class PerformanceMonitor implements IPerformanceMonitor {
   void recordFailure(Duration duration, String reason) {
     _totalOperations++;
     _failedOperations++;
-    
+
     _processingTimes.add(duration);
     _failureReasons.add(reason);
-    
+
     _maintainSampleSize();
   }
 
@@ -120,43 +114,52 @@ class PerformanceMonitor implements IPerformanceMonitor {
     final metrics = getMetrics();
     final issues = <String>[];
     final recommendations = <String>[];
-    
+
     // Calculate health score
     var score = 1.0;
-    
+
     // Factor in error rate (heavily weighted)
     if (metrics.errorRate > 0.1) {
       score -= 0.4;
-      issues.add('High error rate: ${(metrics.errorRate * 100).toStringAsFixed(1)}%');
+      issues.add(
+        'High error rate: ${(metrics.errorRate * 100).toStringAsFixed(1)}%',
+      );
       recommendations.add('Check network connectivity and device resources');
     }
-    
+
     // Factor in processing time
     if (metrics.averageProcessingTime.inMilliseconds > 5000) {
       score -= 0.2;
-      issues.add('Slow processing: ${metrics.averageProcessingTime.inSeconds}s average');
-      recommendations.add('Consider reducing content size or improving device performance');
+      issues.add(
+        'Slow processing: ${metrics.averageProcessingTime.inSeconds}s average',
+      );
+      recommendations.add(
+        'Consider reducing content size or improving device performance',
+      );
     }
-    
+
     // Factor in throughput
-    if (metrics.averageThroughput < 10000) { // Less than 10KB/s
+    if (metrics.averageThroughput < 10000) {
+      // Less than 10KB/s
       score -= 0.2;
-      issues.add('Low throughput: ${(metrics.averageThroughput / 1024).toStringAsFixed(1)} KB/s');
+      issues.add(
+        'Low throughput: ${(metrics.averageThroughput / 1024).toStringAsFixed(1)} KB/s',
+      );
       recommendations.add('Check network quality and streaming strategy');
     }
-    
+
     // Factor in P95 latency
     if (metrics.p95ProcessingTime.inMilliseconds > 10000) {
       score -= 0.1;
       issues.add('High P95 latency: ${metrics.p95ProcessingTime.inSeconds}s');
       recommendations.add('Monitor for resource contention or memory pressure');
     }
-    
+
     // Ensure score is within bounds
     score = math.max(0.0, math.min(1.0, score));
-    
+
     final isHealthy = score >= healthThreshold && issues.isEmpty;
-    
+
     return HealthStatus(
       isHealthy: isHealthy,
       score: score,
@@ -182,7 +185,7 @@ class PerformanceMonitor implements IPerformanceMonitor {
 
     // Calculate average processing time
     final totalMs = _processingTimes.fold<int>(
-      0, 
+      0,
       (sum, duration) => sum + duration.inMilliseconds,
     );
     final avgProcessingTime = Duration(
@@ -197,13 +200,13 @@ class PerformanceMonitor implements IPerformanceMonitor {
 
     // Calculate throughput
     final totalProcessingSeconds = totalMs / 1000.0;
-    final avgThroughput = totalProcessingSeconds > 0 
-        ? _totalBytesProcessed / totalProcessingSeconds 
+    final avgThroughput = totalProcessingSeconds > 0
+        ? _totalBytesProcessed / totalProcessingSeconds
         : 0.0;
 
     // Calculate error rate
-    final errorRate = _totalOperations > 0 
-        ? _failedOperations / _totalOperations 
+    final errorRate = _totalOperations > 0
+        ? _failedOperations / _totalOperations
         : 0.0;
 
     return PerformanceMetrics(
@@ -245,7 +248,7 @@ class PerformanceMonitor implements IPerformanceMonitor {
   Map<String, dynamic> getDiagnostics() {
     final metrics = getMetrics();
     final health = getHealthStatus();
-    
+
     return {
       'health': {
         'is_healthy': health.isHealthy,

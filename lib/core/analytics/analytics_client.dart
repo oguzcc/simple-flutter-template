@@ -1,14 +1,12 @@
-import 'package:developer_command_center/developer_command_center.dart';
 import 'package:flutter/foundation.dart';
 
-class DaisyAnalyticsClient implements AnalyticsClientInterface {
+class DaisyAnalyticsClient {
   final Map<String, int> _tappedWidgets = {};
   final Map<String, Duration> _visitedScreens = {};
   final Map<String, DateTime> _screenStartTimes = {};
   final Map<String, dynamic> _navigationPattern = {};
   final Map<String, Map<String, int>> _heatmapData = {};
 
-  @override
   void logWidgetTap({
     required String widgetId,
     required String widgetType,
@@ -20,7 +18,6 @@ class DaisyAnalyticsClient implements AnalyticsClientInterface {
     );
   }
 
-  @override
   void logButtonTap({
     required String buttonId,
     required String buttonText,
@@ -33,7 +30,6 @@ class DaisyAnalyticsClient implements AnalyticsClientInterface {
     );
   }
 
-  @override
   void logScreenView({
     required String screenName,
     String? screenClass,
@@ -44,7 +40,6 @@ class DaisyAnalyticsClient implements AnalyticsClientInterface {
     debugPrint('Screen viewed: $screenName');
   }
 
-  @override
   void logCustomEvent({
     required String eventName,
     Map<String, Object>? parameters,
@@ -52,7 +47,6 @@ class DaisyAnalyticsClient implements AnalyticsClientInterface {
     debugPrint('Custom event: $eventName with parameters: $parameters');
   }
 
-  @override
   void logTimingEvent({
     required String name,
     required Duration duration,
@@ -62,27 +56,22 @@ class DaisyAnalyticsClient implements AnalyticsClientInterface {
     debugPrint('Timing event: $name - ${duration.inMilliseconds}ms');
   }
 
-  @override
   Future<Map<String, int>> getMostTappedWidgets() async {
     return Map.from(_tappedWidgets);
   }
 
-  @override
   Future<Map<String, Duration>> getMostVisitedScreens() async {
     return Map.from(_visitedScreens);
   }
 
-  @override
   Future<Map<String, dynamic>> analyzeNavigationPattern() async {
     return Map.from(_navigationPattern);
   }
 
-  @override
   Future<Map<String, Map<String, int>>> getAllHeatmapData() async {
     return Map.from(_heatmapData);
   }
 
-  @override
   void logFunnelStep({
     required String funnelName,
     required String stepName,

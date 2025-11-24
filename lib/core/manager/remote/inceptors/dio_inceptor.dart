@@ -1,7 +1,5 @@
-import 'package:daisy/core/manager/storage/secure_storage_client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ErrorHandlerInceptor extends Interceptor {
   ErrorHandlerInceptor(this.dio, this.context);
@@ -43,8 +41,9 @@ class ErrorHandlerInceptor extends Interceptor {
 
   void _handleLogout() {
     try {
-      const FlutterSecureStorage().delete(key: SecureKeys.token.name);
+      // TODO: Implement logout logic
       // context.read<AuthCubit>().signOutWithRequest();
+      debugPrint('Logout triggered due to authentication error');
     } catch (e) {
       debugPrint('Error handling logout: $e');
     }

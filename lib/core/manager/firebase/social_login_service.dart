@@ -9,24 +9,24 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 /// Comprehensive Social Login Service with production-ready error handling
-/// 
+///
 /// Features:
 /// - Apple Sign In with Firebase integration
-/// - Google Sign In with Firebase integration  
+/// - Google Sign In with Firebase integration
 /// - Anonymous Sign In
 /// - Comprehensive error handling and logging
 /// - Dummy credential warnings for development
 /// - Production-ready architecture
 class SocialLoginService {
   GoogleSignIn get _googleSignIn => GoogleSignIn.instance;
-  
+
   /// Initialize Google Sign In with proper scopes
   Future<void> _initializeGoogleSignIn() async {
     await _googleSignIn.initialize();
   }
 
   /// Sign in with Apple
-  /// 
+  ///
   /// Handles complete Apple Sign In flow including:
   /// - Apple ID credential request
   /// - Firebase credential creation
@@ -46,12 +46,12 @@ class SocialLoginService {
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
-        webAuthenticationOptions: kIsWeb 
-          ? WebAuthenticationOptions(
-              clientId: AuthConfig.dummyAppleServiceId,
-              redirectUri: Uri.parse('https://your-domain.com/auth/callback'),
-            )
-          : null,
+        webAuthenticationOptions: kIsWeb
+            ? WebAuthenticationOptions(
+                clientId: AuthConfig.dummyAppleServiceId,
+                redirectUri: Uri.parse('https://your-domain.com/auth/callback'),
+              )
+            : null,
       );
 
       // Create Firebase credential from Apple credential
@@ -61,19 +61,22 @@ class SocialLoginService {
       );
 
       // Sign in with Firebase
-      final userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
 
       final user = userCredential.user;
       if (user != null) {
         // Log successful authentication
         log('✅ Apple Sign In successful for user: ${user.uid}');
-        
+
         return LoginResponseModel.success(
           emailAddress: user.email ?? '',
           socialId: user.uid,
           loginType: LoginType.apple,
-          name: '${appleCredential.givenName ?? ""} ${appleCredential.familyName ?? ""}'.trim(),
+          name:
+              '${appleCredential.givenName ?? ""} ${appleCredential.familyName ?? ""}'
+                  .trim(),
           image: user.photoURL ?? '',
           message: 'Successfully signed in with Apple',
           metadata: {
@@ -89,7 +92,7 @@ class SocialLoginService {
       // Handle Apple-specific errors
       String errorMessage;
       String errorCode;
-      
+
       switch (e.code) {
         case AuthorizationErrorCode.canceled:
           errorMessage = 'Apple Sign In was cancelled';
@@ -122,7 +125,7 @@ class SocialLoginService {
           errorMessage = 'Apple Sign In error: ${e.message}';
           errorCode = 'apple-signin-error';
       }
-      
+
       log('❌ Apple Sign In error: $errorCode - $errorMessage');
       return LoginResponseModel.error(
         message: errorMessage,
@@ -155,7 +158,7 @@ class SocialLoginService {
   }
 
   /// Sign in with Google
-  /// 
+  ///
   /// Handles complete Google Sign In flow including:
   /// - Google account selection
   /// - Authentication token retrieval
@@ -165,26 +168,27 @@ class SocialLoginService {
     try {
       // Development mode warning
       if (kDebugMode && AuthConfig.isDummyMode) {
-        log('⚠️ Using dummy Google credentials - login will fail in production');
+        log(
+          '⚠️ Using dummy Google credentials - login will fail in production',
+        );
         log(AuthConfig.dummyModeWarning);
       }
 
       // Initialize Google Sign In
       await _initializeGoogleSignIn();
-      
-      // Sign out from previous session to force account selection  
+
+      // Sign out from previous session to force account selection
       await _googleSignIn.signOut();
 
       // Trigger Google Sign In flow
       final account = await _googleSignIn.authenticate();
-      if (account == null) {
-        log('ℹ️ Google Sign In was cancelled by user');
-        return LoginResponseModel.error(
-          message: 'Google Sign In was cancelled',
-          errorCode: 'user-cancelled',
-          loginType: LoginType.google,
-        );
-      }
+
+      log('ℹ️ Google Sign In was cancelled by user');
+      return LoginResponseModel.error(
+        message: 'Google Sign In was cancelled',
+        errorCode: 'user-cancelled',
+        loginType: LoginType.google,
+      );
 
       // Get authentication details (synchronous in v7.x)
       final googleAuth = account.authentication;
@@ -195,13 +199,14 @@ class SocialLoginService {
       );
 
       // Sign in with Firebase
-      final userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
 
       final user = userCredential.user;
       if (user != null) {
         log('✅ Google Sign In successful for user: ${user.uid}');
-        
+
         return LoginResponseModel.success(
           emailAddress: user.email ?? account.email,
           socialId: user.uid,
@@ -220,7 +225,9 @@ class SocialLoginService {
         throw Exception('Firebase authentication failed - no user returned');
       }
     } on FirebaseAuthException catch (e) {
-      log('❌ Firebase Auth exception during Google Sign In: ${e.code} - ${e.message}');
+      log(
+        '❌ Firebase Auth exception during Google Sign In: ${e.code} - ${e.message}',
+      );
       return LoginResponseModel.error(
         message: AuthConstants.getErrorMessage(e.code),
         errorCode: e.code,
@@ -245,19 +252,18 @@ class SocialLoginService {
   }
 
   /// Sign in anonymously
-  /// 
+  ///
   /// Creates an anonymous Firebase account for guest users
   Future<LoginResponseModel> signInAnonymously() async {
     try {
       log('ℹ️ Starting anonymous sign in');
-      
-      final userCredential =
-          await FirebaseAuth.instance.signInAnonymously();
-          
+
+      final userCredential = await FirebaseAuth.instance.signInAnonymously();
+
       final user = userCredential.user;
       if (user != null) {
         log('✅ Anonymous sign in successful for user: ${user.uid}');
-        
+
         return LoginResponseModel.success(
           emailAddress: '',
           socialId: user.uid,
@@ -271,10 +277,14 @@ class SocialLoginService {
           },
         );
       } else {
-        throw Exception('Firebase anonymous authentication failed - no user returned');
+        throw Exception(
+          'Firebase anonymous authentication failed - no user returned',
+        );
       }
     } on FirebaseAuthException catch (e) {
-      log('❌ Firebase Auth exception during anonymous sign in: ${e.code} - ${e.message}');
+      log(
+        '❌ Firebase Auth exception during anonymous sign in: ${e.code} - ${e.message}',
+      );
       return LoginResponseModel.error(
         message: AuthConstants.getErrorMessage(e.code),
         errorCode: e.code,
@@ -295,14 +305,14 @@ class SocialLoginService {
   Future<void> signOut() async {
     try {
       log('ℹ️ Starting sign out process');
-      
+
       // Sign out from Firebase
       await FirebaseAuth.instance.signOut();
-      
+
       // Sign out from Google
       await _googleSignIn.signOut();
       log('✅ Signed out from Google');
-      
+
       log('✅ Sign out completed successfully');
     } catch (e) {
       log('❌ Error during sign out: $e');
@@ -317,15 +327,16 @@ class SocialLoginService {
   bool get isSignedIn => currentUser != null;
 
   /// Listen to authentication state changes
-  Stream<User?> get authStateChanges => FirebaseAuth.instance.authStateChanges();
+  Stream<User?> get authStateChanges =>
+      FirebaseAuth.instance.authStateChanges();
 
   /// Get current login type based on Firebase user providers
   LoginType getCurrentLoginType() {
     final user = currentUser;
     if (user == null) return LoginType.unknown;
-    
+
     if (user.isAnonymous) return LoginType.anonymous;
-    
+
     for (final provider in user.providerData) {
       switch (provider.providerId) {
         case 'google.com':
@@ -338,7 +349,7 @@ class SocialLoginService {
           return LoginType.facebook;
       }
     }
-    
+
     return LoginType.unknown;
   }
 

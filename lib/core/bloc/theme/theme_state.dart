@@ -1,8 +1,20 @@
 part of 'theme_cubit.dart';
 
-@freezed
-class ThemeState with _$ThemeState {
-  const factory ThemeState({
-    @Default(ThemeMode.system) ThemeMode themeMode,
-  }) = _ThemeState;
+class ThemeState extends Equatable {
+  const ThemeState({
+    this.themeMode = ThemeMode.system,
+  });
+
+  final ThemeMode themeMode;
+
+  @override
+  List<Object?> get props => [themeMode];
+
+  ThemeState copyWith({
+    ThemeMode? themeMode,
+  }) {
+    return ThemeState(
+      themeMode: themeMode ?? this.themeMode,
+    );
+  }
 }

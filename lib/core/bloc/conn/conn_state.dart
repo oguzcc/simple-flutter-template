@@ -9,9 +9,21 @@ enum ConnStatus {
   final String message;
 }
 
-@freezed
-class ConnState with _$ConnState {
-  const factory ConnState({
-    @Default(ConnStatus.offline) ConnStatus status,
-  }) = _ConnState;
+class ConnState extends Equatable {
+  const ConnState({
+    this.status = ConnStatus.offline,
+  });
+
+  final ConnStatus status;
+
+  @override
+  List<Object?> get props => [status];
+
+  ConnState copyWith({
+    ConnStatus? status,
+  }) {
+    return ConnState(
+      status: status ?? this.status,
+    );
+  }
 }
