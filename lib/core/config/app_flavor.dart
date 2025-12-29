@@ -7,7 +7,6 @@ enum FlavorType { development, staging, production }
 class AppFlavor {
   /// Factory constructor
   factory AppFlavor({
-    String? name,
     Color color = Colors.red,
     BannerLocation location = BannerLocation.topStart,
     IApiOption? apiOptions,
@@ -15,7 +14,6 @@ class AppFlavor {
     FlavorType? flavorType,
   }) {
     _instance = AppFlavor._internal(
-      name,
       color,
       location,
       apiOptions,
@@ -32,16 +30,12 @@ class AppFlavor {
 
   /// Private constructor
   AppFlavor._internal(
-    this.name,
     this.color,
     this.location,
     this.apiOptions,
     this.variables,
     this.flavorType,
   );
-
-  /// Name of flavor
-  final String? name;
 
   /// Color of the banner
   final Color color;

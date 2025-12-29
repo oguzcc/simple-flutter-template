@@ -5,7 +5,6 @@ import 'package:daisy/core/config/app_flavor.dart';
 
 Future<void> main() async {
   AppFlavor(
-    name: 'Development',
     flavorType: FlavorType.development,
     apiOptions: ApiOption.development(),
   );

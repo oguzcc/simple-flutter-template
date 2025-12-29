@@ -13,7 +13,7 @@ final goRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   observers: [AnalyticsService.instance.observer],
   redirect: (context, state) {
-    // Her şey splash'dan başlar, splash karar verir
+    // Redirect '/' to splash screen
     if (state.uri.path == '/') {
       return Screens.splash.path;
     }

@@ -1,9 +1,7 @@
 // ignore_for_file: unnecessary_statements
 
-import 'dart:developer';
 import 'dart:ui' as ui;
 
-import 'package:daisy/core/config/app_constant.dart';
 import 'package:daisy/router/router.dart';
 import 'package:flutter/material.dart';
 
@@ -25,13 +23,13 @@ class SizeConfig {
 
   static double get screenWidth =>
       _screenWidth = _mediaQueryData.size.width == 0
-          ? _screenWidth
-          : _mediaQueryData.size.width;
+      ? _screenWidth
+      : _mediaQueryData.size.width;
 
   static double get screenHeight =>
       _screenHeight = _mediaQueryData.size.height == 0
-          ? _screenHeight
-          : _mediaQueryData.size.height;
+      ? _screenHeight
+      : _mediaQueryData.size.height;
 
   static double get blockSizeHorizontal => screenWidth / 100;
 
@@ -51,8 +49,8 @@ class SizeConfig {
 
   static double get statusBarHeight =>
       _statusBarHeight = _mediaQueryData.padding.top != 0
-          ? _mediaQueryData.padding.top
-          : _statusBarHeight;
+      ? _mediaQueryData.padding.top
+      : _statusBarHeight;
 
   static EdgeInsets get safeAreaPadding => _mediaQueryData.padding;
 
@@ -61,15 +59,4 @@ class SizeConfig {
   static double get appBarHeight => kToolbarHeight;
 
   static double get screenHeightTopSafeArea => screenHeight - statusBarHeight;
-
-  static void setScreenSizeFromConstraints(BoxConstraints constraints) {
-    _screenWidth =
-        constraints.maxWidth == 0 ? designScreenWidth : constraints.maxWidth;
-    _screenHeight = kBottomNavigationBarHeight;
-    constraints.maxHeight == 0 ? designScreenHeight : constraints.maxHeight;
-    log(
-      '${SizeConfig.screenWidth}x${SizeConfig.screenHeight}',
-      name: 'Screen Local Pixel',
-    );
-  }
 }
