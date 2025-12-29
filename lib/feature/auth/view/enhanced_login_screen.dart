@@ -1,9 +1,9 @@
-import 'package:daisy/core/config/auth_config.dart';
 import 'package:daisy/core/config/app_flavor.dart';
+import 'package:daisy/core/config/auth_config.dart';
 import 'package:daisy/core/enum/common_enum.dart';
 import 'package:daisy/feature/auth/cubit/auth_cubit.dart';
 import 'package:daisy/router/screens.dart';
-import 'package:daisy/ui/widget/button/social_login_button.dart';
+import 'package:daisy/ui/widget/button/_button/_button_social.dart';
 import 'package:daisy/ui/widget/gap/gap.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// Enhanced login screen with social login capabilities
-/// 
+///
 /// Features:
 /// - Social login buttons (Apple, Google, Anonymous)
 /// - Loading states and error handling
@@ -32,7 +32,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
-    
+
     return Scaffold(
       body: SafeArea(
         child: BlocConsumer<AuthCubit, AuthState>(
@@ -43,12 +43,12 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
               // Navigate to home screen
               context.goNamed(Screens.home.name);
             }
-            
+
             // Handle errors
             if (state.status == Status.error && state.errorMessage != null) {
               _showErrorSnackBar(context, state.errorMessage!);
             }
-            
+
             // Clear loading state
             if (state.status != Status.loading) {
               setState(() {
@@ -58,12 +58,15 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
           },
           builder: (context, state) {
             final isLoading = state.status == Status.loading;
-            
+
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: size.height - MediaQuery.of(context).padding.vertical - 48,
+                  minHeight:
+                      size.height -
+                      MediaQuery.of(context).padding.vertical -
+                      48,
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -71,42 +74,42 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
                   children: [
                     // App Logo and Title
                     _buildHeader(theme),
-                    
+
                     const Gap.xl(),
-                    
+
                     // Development Warning (if using dummy credentials)
                     if (AuthConfig.isDummyMode) ...[
                       _buildDummyWarning(theme),
                       const Gap.lg(),
                     ],
-                    
+
                     // Authentication Status
                     if (state.authStatus != AuthStatus.initial) ...[
                       _buildAuthStatus(state, theme),
                       const Gap.lg(),
                     ],
-                    
+
                     // Social Login Buttons
                     _buildSocialButtons(context, isLoading),
-                    
+
                     const Gap.lg(),
-                    
+
                     // Development Bypass Button (Debug & Development only)
                     if (kDebugMode && _isDevelopmentFlavor()) ...[
                       _buildDevelopmentBypassButton(context, theme, isLoading),
                       const Gap.lg(),
                     ],
-                    
+
                     // Or Divider
                     _buildDivider(theme),
-                    
+
                     const Gap.lg(),
-                    
+
                     // Traditional Login Option
                     _buildTraditionalLoginOption(context, theme),
-                    
+
                     const Gap.xl(),
-                    
+
                     // Debug Information (Debug mode only)
                     if (AuthConfig.isDummyMode) _buildDebugInfo(state, theme),
                   ],
@@ -136,9 +139,9 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
             color: theme.colorScheme.onPrimary,
           ),
         ),
-        
+
         const Gap.lg(),
-        
+
         Text(
           'Welcome to Daisy',
           style: theme.textTheme.headlineMedium?.copyWith(
@@ -146,9 +149,9 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
           ),
           textAlign: TextAlign.center,
         ),
-        
+
         const Gap.sm(),
-        
+
         Text(
           'Sign in to continue with your account',
           style: theme.textTheme.bodyLarge?.copyWith(
@@ -173,11 +176,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.warning,
-                color: Colors.amber,
-                size: 20,
-              ),
+              const Icon(Icons.warning, color: Colors.amber, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Development Mode',
@@ -239,10 +238,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
           Expanded(
             child: Text(
               statusText,
-              style: TextStyle(
-                color: statusColor,
-                fontWeight: FontWeight.w500,
-              ),
+              style: TextStyle(color: statusColor, fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -300,26 +296,18 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
       },
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(double.infinity, 50),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: const Text(
         'Sign in with Email',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
     );
   }
 
   Widget _buildDebugInfo(AuthState state, ThemeData theme) {
     return ExpansionTile(
-      title: Text(
-        'Debug Info',
-        style: theme.textTheme.titleSmall,
-      ),
+      title: Text('Debug Info', style: theme.textTheme.titleSmall),
       children: [
         Padding(
           padding: const EdgeInsets.all(16),
@@ -369,10 +357,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontFamily: 'monospace'),
-            ),
+            child: Text(value, style: const TextStyle(fontFamily: 'monospace')),
           ),
         ],
       ),
@@ -387,17 +372,17 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
     setState(() {
       _loadingType = type;
     });
-    
+
     // Clear any previous errors
     context.read<AuthCubit>().clearError();
-    
+
     // Perform login
     loginAction();
   }
 
   void _showSuccessSnackBar(BuildContext context, AuthState state) {
     var userName = 'User';
-    
+
     if (state.currentUser?.displayName?.isNotEmpty ?? false) {
       userName = state.currentUser!.displayName!;
     } else if (state.socialLoginResult?.name?.isNotEmpty ?? false) {
@@ -405,7 +390,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
     } else if (state.currentUser?.email?.isNotEmpty == true) {
       userName = state.currentUser!.email!.split('@').first;
     }
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Welcome, $userName! 🎉'),
@@ -471,7 +456,11 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
   }
 
   /// Build development bypass button - only shown in debug mode + development flavor
-  Widget _buildDevelopmentBypassButton(BuildContext context, ThemeData theme, bool isLoading) {
+  Widget _buildDevelopmentBypassButton(
+    BuildContext context,
+    ThemeData theme,
+    bool isLoading,
+  ) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -499,11 +488,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.developer_mode,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                const Icon(Icons.developer_mode, color: Colors.white, size: 20),
                 const SizedBox(width: 12),
                 Text(
                   'Development Bypass',
@@ -514,7 +499,10 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),

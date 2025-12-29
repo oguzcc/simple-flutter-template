@@ -13,7 +13,7 @@ class _IndicatorProgressCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      const _IndicatorProgress(CircularProgressIndicator());
+      const _IndicatorProgress(CircularProgressIndicator.adaptive());
 }
 
 class _IndicatorProgressLinear extends StatelessWidget {

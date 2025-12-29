@@ -21,7 +21,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      toolbarHeight: toolbarHeight,
+      toolbarHeight: toolbarHeight ?? kToolbarHeight,
       leading: Padding(
         padding: AppPadding.appBar * 1.8,
         child: leading ?? const Gap.shrink(),
@@ -37,10 +37,10 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => Size.fromHeight(
-        preferredHeightFor(
-          _PreferredAppBarSize(toolbarHeight, bottom?.preferredSize.height),
-        ),
-      );
+    preferredHeightFor(
+      _PreferredAppBarSize(toolbarHeight, bottom?.preferredSize.height),
+    ),
+  );
 
   static double preferredHeightFor(Size preferredSize) {
     if (preferredSize is _PreferredAppBarSize &&
@@ -53,9 +53,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
 
 class _PreferredAppBarSize extends Size {
   _PreferredAppBarSize(this.toolbarHeight, this.bottomHeight)
-      : super.fromHeight(
-          (toolbarHeight ?? kToolbarHeight) + (bottomHeight ?? 0),
-        );
+    : super.fromHeight((toolbarHeight ?? kToolbarHeight) + (bottomHeight ?? 0));
 
   final double? toolbarHeight;
   final double? bottomHeight;
