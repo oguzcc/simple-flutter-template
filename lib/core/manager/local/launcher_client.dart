@@ -1,6 +1,12 @@
 import 'package:url_launcher/url_launcher.dart';
 
 class LauncherClient {
+  static Future<void> launch(Uri url) async {
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   static Future<void> callTel({required String phoneNumber}) async {
     final callUrl = Uri.parse('tel:$phoneNumber');
     if (await canLaunchUrl(callUrl)) {

@@ -1,7 +1,6 @@
-enum LoginType { email, google, facebook, apple, unknown }
+enum LoginType { email, google, facebook, apple, anonymous, unknown }
 
 class ResSocialLogin {
-
   ResSocialLogin({
     required this.status,
     this.message,

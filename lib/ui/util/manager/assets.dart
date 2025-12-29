@@ -38,7 +38,7 @@ extension ImageExtension on String {
     EdgeInsets? padding,
     VoidCallback? onTap,
   }) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Padding(
         padding: padding ?? EdgeInsets.zero,
