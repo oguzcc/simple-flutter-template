@@ -12,10 +12,7 @@ mixin _SplashMixin<T extends StatefulWidget> on State<T> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 2 saniye default bekleme süresi ekle, sonra diğer işlemleri başlat
       Future.delayed(const Duration(seconds: 2), () {
-        Future.wait([
-          _fetchVersion(),
-          _checkForceUpdateAndContinue(),
-        ]);
+        Future.wait([_fetchVersion(), _checkForceUpdateAndContinue()]);
       });
     });
   }
@@ -63,6 +60,10 @@ mixin _SplashMixin<T extends StatefulWidget> on State<T> {
   }
 
   //* MARK: Uygulama başlatıldığında internet bağlantısını kontrol et
+  // NOTE: This method is currently unused but kept for potential future use
+  // If you want to add internet connectivity check before app initialization,
+  // call this method from initState instead of _initializeApp directly
+  // ignore: unused_element
   Future<void> _checkInternetConnection() async {
     if (!mounted) return;
 
@@ -113,9 +114,7 @@ mixin _SplashMixin<T extends StatefulWidget> on State<T> {
 
       // Temel verileri yükle (sadece authenticated kullanıcılar için)
       if (homeCubit != null && authCubit != null && authCubit.isAuthenticated) {
-        await Future.wait([
-          homeCubit.fetchInitialData(),
-        ]);
+        await Future.wait([homeCubit.fetchInitialData()]);
       }
 
       // if forceUpdate is required then return
@@ -129,7 +128,8 @@ mixin _SplashMixin<T extends StatefulWidget> on State<T> {
         final authCubit = context.read<AuthCubit?>();
         log('🔍 Splash checking auth state: ${authCubit?.state.authStatus}');
 
-        if (authCubit != null && authCubit.state.authStatus == AuthStatus.authenticated) {
+        if (authCubit != null &&
+            authCubit.state.authStatus == AuthStatus.authenticated) {
           log('✅ User authenticated, navigating to home');
           context.goNamed(Screens.home.name);
         } else {

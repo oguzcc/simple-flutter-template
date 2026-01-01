@@ -20,11 +20,6 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 class SocialLoginService {
   GoogleSignIn get _googleSignIn => GoogleSignIn.instance;
 
-  /// Initialize Google Sign In with proper scopes
-  Future<void> _initializeGoogleSignIn() async {
-    await _googleSignIn.initialize();
-  }
-
   /// Sign in with Apple
   ///
   /// Handles complete Apple Sign In flow including:
@@ -121,9 +116,6 @@ class SocialLoginService {
         case AuthorizationErrorCode.matchedExcludedCredential:
           errorMessage = 'Apple Sign In matched excluded credential error';
           errorCode = 'matched-excluded-credential';
-        default:
-          errorMessage = 'Apple Sign In error: ${e.message}';
-          errorCode = 'apple-signin-error';
       }
 
       log('❌ Apple Sign In error: $errorCode - $errorMessage');
@@ -174,23 +166,13 @@ class SocialLoginService {
         log(AuthConfig.dummyModeWarning);
       }
 
-      // Initialize Google Sign In
-      await _initializeGoogleSignIn();
-
       // Sign out from previous session to force account selection
       await _googleSignIn.signOut();
 
-      // Trigger Google Sign In flow
+      // Trigger Google Sign In flow (authenticate() returns non-nullable in v7.x)
       final account = await _googleSignIn.authenticate();
 
-      log('ℹ️ Google Sign In was cancelled by user');
-      return LoginResponseModel.error(
-        message: 'Google Sign In was cancelled',
-        errorCode: 'user-cancelled',
-        loginType: LoginType.google,
-      );
-
-      // Get authentication details (synchronous in v7.x)
+      // Get authentication details (synchronous property in v7.x)
       final googleAuth = account.authentication;
 
       // Create Firebase credential (v7.x only needs idToken)

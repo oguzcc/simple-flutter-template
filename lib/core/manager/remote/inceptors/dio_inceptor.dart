@@ -41,11 +41,28 @@ class ErrorHandlerInceptor extends Interceptor {
 
   void _handleLogout() {
     try {
-      // TODO: Implement logout logic
-      // context.read<AuthCubit>().signOutWithRequest();
-      debugPrint('Logout triggered due to authentication error');
+      // Implement logout logic when user is unauthorized
+      // This typically happens when:
+      // - Token has expired
+      // - User session is invalid
+      // - User has been logged out from another device
+
+      // TODO: Inject AuthCubit or create a logout callback
+      // For now, log the event - actual implementation needs:
+      // 1. Clear local storage/cache
+      // 2. Call AuthCubit.signOut() or similar
+      // 3. Navigate to login screen
+      // 4. Show appropriate error message to user
+
+      // Example implementation (requires dependency injection):
+      // final authCubit = GetIt.instance<AuthCubit>();
+      // authCubit.signOut();
+      // navigatorKey.currentState?.pushReplacementNamed('/login');
+
+      debugPrint('⚠️ Logout triggered due to 401/403 authentication error');
+      debugPrint('🔑 User needs to re-authenticate');
     } catch (e) {
-      debugPrint('Error handling logout: $e');
+      debugPrint('❌ Error handling logout: $e');
     }
   }
 }

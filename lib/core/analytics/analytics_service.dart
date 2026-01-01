@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 /// Unified Analytics Service for Daisy App
 ///
@@ -54,14 +55,18 @@ class AnalyticsService {
       _firebaseAnalytics = FirebaseAnalytics.instance;
       await _firebaseAnalytics.setAnalyticsCollectionEnabled(true);
 
+      // Get app version from package info
+      final packageInfo = await PackageInfo.fromPlatform();
+      final appVersion = '${packageInfo.version}+${packageInfo.buildNumber}';
+
       // Set default user properties
       await _firebaseAnalytics.setUserProperty(
         name: 'app_version',
-        value: '1.0.0', // TODO(dev): Get from package_info
+        value: appVersion,
       );
 
       _isFirebaseInitialized = true;
-      log('✅ Firebase Analytics initialized');
+      log('✅ Firebase Analytics initialized with version: $appVersion');
     } catch (e) {
       log('❌ Firebase Analytics initialization failed: $e');
     }
@@ -78,7 +83,7 @@ class AnalyticsService {
     }
 
     try {
-      final enrichedProperties = _enrichProperties(properties);
+      final enrichedProperties = await _enrichProperties(properties);
 
       // Track with Firebase Analytics
       if (_isFirebaseInitialized) {
@@ -262,13 +267,25 @@ class AnalyticsService {
   }
 
   /// Enrich properties with common metadata
-  Map<String, dynamic> _enrichProperties(Map<String, dynamic>? properties) {
+  Future<Map<String, dynamic>> _enrichProperties(
+    Map<String, dynamic>? properties,
+  ) async {
     final now = DateTime.now();
+
+    // Get app version dynamically
+    String appVersion = '1.0.0';
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      appVersion = '${packageInfo.version}+${packageInfo.buildNumber}';
+    } catch (e) {
+      log('⚠️ Could not get package info: $e');
+    }
+
     return {
       'timestamp': now.millisecondsSinceEpoch,
       'date': now.toIso8601String(),
       'platform': defaultTargetPlatform.name,
-      'app_version': '1.0.0', // TODO: Get from package_info
+      'app_version': appVersion,
       ...?properties,
     };
   }
