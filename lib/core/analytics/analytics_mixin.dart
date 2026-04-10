@@ -46,7 +46,7 @@ mixin AnalyticsMixin {
       'button_tap',
       properties: {
         'button_name': buttonName,
-        if (screenName != null) 'screen_name': screenName,
+        'screen_name': ?screenName,
         ...?properties,
       },
     );
@@ -64,7 +64,7 @@ mixin AnalyticsMixin {
       properties: {
         'from_screen': fromScreen,
         'to_screen': toScreen,
-        if (trigger != null) 'trigger': trigger,
+        'trigger': ?trigger,
         ...?properties,
       },
     );
@@ -81,8 +81,8 @@ mixin AnalyticsMixin {
       'form_submission',
       properties: {
         'form_name': formName,
-        if (success != null) 'success': success,
-        if (errorMessage != null) 'error_message': errorMessage,
+        'success': ?success,
+        'error_message': ?errorMessage,
         ...?properties,
       },
     );
@@ -99,8 +99,8 @@ mixin AnalyticsMixin {
       'search',
       properties: {
         'query': query,
-        if (resultCount != null) 'result_count': resultCount,
-        if (category != null) 'category': category,
+        'result_count': ?resultCount,
+        'category': ?category,
         ...?properties,
       },
     );
@@ -118,7 +118,7 @@ mixin AnalyticsMixin {
       properties: {
         'content_type': contentType,
         'content_id': contentId,
-        if (method != null) 'method': method,
+        'method': ?method,
         ...?properties,
       },
     );
@@ -136,7 +136,7 @@ mixin AnalyticsMixin {
       properties: {
         'error_type': errorType,
         'error_message': errorMessage,
-        if (screenName != null) 'screen_name': screenName,
+        'screen_name': ?screenName,
         ...?properties,
       },
     );
@@ -157,8 +157,8 @@ mixin AnalyticsMixin {
         'sign_in_result',
         properties: {
           'method': method,
-          if (success != null) 'success': success,
-          if (errorCode != null) 'error_code': errorCode,
+          'success': ?success,
+          'error_code': ?errorCode,
           ...?properties,
         },
       );
@@ -180,8 +180,8 @@ mixin AnalyticsMixin {
         'sign_up_result',
         properties: {
           'method': method,
-          if (success != null) 'success': success,
-          if (errorCode != null) 'error_code': errorCode,
+          'success': ?success,
+          'error_code': ?errorCode,
           ...?properties,
         },
       );
@@ -195,7 +195,7 @@ mixin AnalyticsMixin {
   }) async {
     await trackEvent(
       'sign_out',
-      properties: {if (reason != null) 'reason': reason, ...?properties},
+      properties: {'reason': ?reason, ...?properties},
     );
   }
 
@@ -211,7 +211,7 @@ mixin AnalyticsMixin {
       properties: {
         'step_number': stepNumber,
         'step_name': stepName,
-        if (action != null) 'action': action,
+        'action': ?action,
         ...?properties,
       },
     );
@@ -238,7 +238,7 @@ mixin AnalyticsMixin {
       'feature_usage',
       properties: {
         'feature_name': featureName,
-        if (action != null) 'action': action,
+        'action': ?action,
         ...?properties,
       },
     );
@@ -256,7 +256,7 @@ mixin AnalyticsMixin {
       properties: {
         'metric_name': metricName,
         'value': value,
-        if (unit != null) 'unit': unit,
+        'unit': ?unit,
         ...?properties,
       },
     );
@@ -273,8 +273,8 @@ mixin AnalyticsMixin {
       'engagement',
       properties: {
         'engagement_type': engagementType,
-        if (duration != null) 'duration': duration,
-        if (count != null) 'count': count,
+        'duration': ?duration,
+        'count': ?count,
         ...?properties,
       },
     );

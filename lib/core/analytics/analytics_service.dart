@@ -202,7 +202,7 @@ class AnalyticsService {
       // Track login event
       await trackEvent(
         'user_login',
-        properties: {'user_guid': userGuid, if (email != null) 'email': email},
+        properties: {'user_guid': userGuid, 'email': ?email},
       );
 
       log('👤 User login tracked: $userGuid');

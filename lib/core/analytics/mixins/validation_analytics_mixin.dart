@@ -11,11 +11,14 @@ mixin ValidationAnalyticsMixin {
     required String fieldName,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('form_field_focus', properties: {
-      'form_name': formName,
-      'field_name': fieldName,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'form_field_focus',
+      properties: {
+        'form_name': formName,
+        'field_name': fieldName,
+        ...?properties,
+      },
+    );
   }
 
   /// Track form field validation error
@@ -26,13 +29,16 @@ mixin ValidationAnalyticsMixin {
     String? errorMessage,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('form_validation_error', properties: {
-      'form_name': formName,
-      'field_name': fieldName,
-      'error_type': errorType,
-      if (errorMessage != null) 'error_message': errorMessage,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'form_validation_error',
+      properties: {
+        'form_name': formName,
+        'field_name': fieldName,
+        'error_type': errorType,
+        'error_message': ?errorMessage,
+        ...?properties,
+      },
+    );
   }
 
   /// Track form submission attempt
@@ -48,15 +54,18 @@ mixin ValidationAnalyticsMixin {
         .map((entry) => entry.key)
         .toList();
 
-    await _analytics.trackEvent('form_submission_attempt', properties: {
-      'form_name': formName,
-      'valid_field_count': validFieldCount,
-      'total_field_count': totalFieldCount,
-      'completion_rate': validFieldCount / totalFieldCount,
-      'invalid_fields': invalidFields,
-      'is_complete': invalidFields.isEmpty,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'form_submission_attempt',
+      properties: {
+        'form_name': formName,
+        'valid_field_count': validFieldCount,
+        'total_field_count': totalFieldCount,
+        'completion_rate': validFieldCount / totalFieldCount,
+        'invalid_fields': invalidFields,
+        'is_complete': invalidFields.isEmpty,
+        ...?properties,
+      },
+    );
   }
 
   /// Track form submission success
@@ -65,11 +74,14 @@ mixin ValidationAnalyticsMixin {
     required double formCompletionTime,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('form_submission_success', properties: {
-      'form_name': formName,
-      'completion_time_seconds': formCompletionTime,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'form_submission_success',
+      properties: {
+        'form_name': formName,
+        'completion_time_seconds': formCompletionTime,
+        ...?properties,
+      },
+    );
   }
 
   /// Track form submission failure
@@ -79,12 +91,15 @@ mixin ValidationAnalyticsMixin {
     String? errorMessage,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('form_submission_failure', properties: {
-      'form_name': formName,
-      'error_type': errorType,
-      if (errorMessage != null) 'error_message': errorMessage,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'form_submission_failure',
+      properties: {
+        'form_name': formName,
+        'error_type': errorType,
+        'error_message': ?errorMessage,
+        ...?properties,
+      },
+    );
   }
 
   /// Track form abandonment
@@ -96,15 +111,18 @@ mixin ValidationAnalyticsMixin {
     String? lastFocusedField,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('form_abandoned', properties: {
-      'form_name': formName,
-      'time_spent_seconds': timeSpent,
-      'fields_completed': fieldsCompleted,
-      'total_fields': totalFields,
-      'completion_percentage': (fieldsCompleted / totalFields) * 100,
-      if (lastFocusedField != null) 'last_focused_field': lastFocusedField,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'form_abandoned',
+      properties: {
+        'form_name': formName,
+        'time_spent_seconds': timeSpent,
+        'fields_completed': fieldsCompleted,
+        'total_fields': totalFields,
+        'completion_percentage': (fieldsCompleted / totalFields) * 100,
+        'last_focused_field': ?lastFocusedField,
+        ...?properties,
+      },
+    );
   }
 
   /// Track form field auto-fill usage
@@ -114,12 +132,15 @@ mixin ValidationAnalyticsMixin {
     required String autoFillType,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('form_autofill_used', properties: {
-      'form_name': formName,
-      'field_name': fieldName,
-      'autofill_type': autoFillType,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'form_autofill_used',
+      properties: {
+        'form_name': formName,
+        'field_name': fieldName,
+        'autofill_type': autoFillType,
+        ...?properties,
+      },
+    );
   }
 
   /// Track form help/tooltip usage
@@ -129,12 +150,15 @@ mixin ValidationAnalyticsMixin {
     required String helpType, // 'tooltip', 'help_text', 'modal'
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('form_help_used', properties: {
-      'form_name': formName,
-      'field_name': fieldName,
-      'help_type': helpType,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'form_help_used',
+      properties: {
+        'form_name': formName,
+        'field_name': fieldName,
+        'help_type': helpType,
+        ...?properties,
+      },
+    );
   }
 
   /// Track password strength validation
@@ -144,12 +168,15 @@ mixin ValidationAnalyticsMixin {
     required bool meetsRequirements,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('password_strength_check', properties: {
-      'form_name': formName,
-      'strength_level': strengthLevel,
-      'meets_requirements': meetsRequirements,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'password_strength_check',
+      properties: {
+        'form_name': formName,
+        'strength_level': strengthLevel,
+        'meets_requirements': meetsRequirements,
+        ...?properties,
+      },
+    );
   }
 
   /// Track multi-step form navigation
@@ -160,13 +187,16 @@ mixin ValidationAnalyticsMixin {
     required String navigationAction, // 'next', 'previous', 'jump'
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('form_step_navigation', properties: {
-      'form_name': formName,
-      'from_step': fromStep,
-      'to_step': toStep,
-      'navigation_action': navigationAction,
-      'step_direction': toStep > fromStep ? 'forward' : 'backward',
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'form_step_navigation',
+      properties: {
+        'form_name': formName,
+        'from_step': fromStep,
+        'to_step': toStep,
+        'navigation_action': navigationAction,
+        'step_direction': toStep > fromStep ? 'forward' : 'backward',
+        ...?properties,
+      },
+    );
   }
 }

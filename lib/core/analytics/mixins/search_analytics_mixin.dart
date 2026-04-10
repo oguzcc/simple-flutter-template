@@ -12,13 +12,16 @@ mixin SearchAnalyticsMixin {
     Map<String, String>? filters,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('search_query', properties: {
-      'search_query': searchQuery,
-      'query_length': searchQuery.length,
-      if (category != null) 'category': category,
-      if (filters != null) 'filters': filters,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'search_query',
+      properties: {
+        'search_query': searchQuery,
+        'query_length': searchQuery.length,
+        'category': ?category,
+        'filters': ?filters,
+        ...?properties,
+      },
+    );
   }
 
   /// Track search results display
@@ -29,14 +32,17 @@ mixin SearchAnalyticsMixin {
     String? category,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('search_results', properties: {
-      'search_query': searchQuery,
-      'result_count': resultCount,
-      'search_time_ms': searchTime,
-      'has_results': resultCount > 0,
-      if (category != null) 'category': category,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'search_results',
+      properties: {
+        'search_query': searchQuery,
+        'result_count': resultCount,
+        'search_time_ms': searchTime,
+        'has_results': resultCount > 0,
+        'category': ?category,
+        ...?properties,
+      },
+    );
   }
 
   /// Track search result click
@@ -47,14 +53,17 @@ mixin SearchAnalyticsMixin {
     String? category,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('search_result_click', properties: {
-      'search_query': searchQuery,
-      'product_id': productId ?? '',
-      'position': position,
-      'click_position': position + 1, // 1-indexed for readability
-      if (category != null) 'category': category,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'search_result_click',
+      properties: {
+        'search_query': searchQuery,
+        'product_id': productId ?? '',
+        'position': position,
+        'click_position': position + 1, // 1-indexed for readability
+        'category': ?category,
+        ...?properties,
+      },
+    );
   }
 
   /// Track search filter application
@@ -65,13 +74,16 @@ mixin SearchAnalyticsMixin {
     required int resultCount,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('search_filter_applied', properties: {
-      'search_query': searchQuery,
-      'filter_type': filterType,
-      'filter_value': filterValue,
-      'result_count_after_filter': resultCount,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'search_filter_applied',
+      properties: {
+        'search_query': searchQuery,
+        'filter_type': filterType,
+        'filter_value': filterValue,
+        'result_count_after_filter': resultCount,
+        ...?properties,
+      },
+    );
   }
 
   /// Track search abandonment (no results clicked)
@@ -81,12 +93,15 @@ mixin SearchAnalyticsMixin {
     required double timeSpent,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('search_abandoned', properties: {
-      'search_query': searchQuery,
-      'result_count': resultCount,
-      'time_spent_seconds': timeSpent,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'search_abandoned',
+      properties: {
+        'search_query': searchQuery,
+        'result_count': resultCount,
+        'time_spent_seconds': timeSpent,
+        ...?properties,
+      },
+    );
   }
 
   /// Track search suggestions usage
@@ -96,12 +111,15 @@ mixin SearchAnalyticsMixin {
     required int suggestionPosition,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('search_suggestion_click', properties: {
-      'original_query': originalQuery,
-      'selected_suggestion': selectedSuggestion,
-      'suggestion_position': suggestionPosition,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'search_suggestion_click',
+      properties: {
+        'original_query': originalQuery,
+        'selected_suggestion': selectedSuggestion,
+        'suggestion_position': suggestionPosition,
+        ...?properties,
+      },
+    );
   }
 
   /// Track search autocomplete usage
@@ -110,12 +128,15 @@ mixin SearchAnalyticsMixin {
     required List<String> suggestions,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('search_autocomplete', properties: {
-      'query': query,
-      'suggestion_count': suggestions.length,
-      'suggestions': suggestions.take(5).toList(), // Limit for privacy
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'search_autocomplete',
+      properties: {
+        'query': query,
+        'suggestion_count': suggestions.length,
+        'suggestions': suggestions.take(5).toList(), // Limit for privacy
+        ...?properties,
+      },
+    );
   }
 
   /// Track voice search usage
@@ -125,11 +146,14 @@ mixin SearchAnalyticsMixin {
     double? confidence,
     Map<String, dynamic>? properties,
   }) async {
-    await _analytics.trackEvent('voice_search', properties: {
-      'transcribed_query': transcribedQuery,
-      'transcription_success': transcriptionSuccess,
-      if (confidence != null) 'confidence_score': confidence,
-      ...?properties,
-    });
+    await _analytics.trackEvent(
+      'voice_search',
+      properties: {
+        'transcribed_query': transcribedQuery,
+        'transcription_success': transcriptionSuccess,
+        'confidence_score': ?confidence,
+        ...?properties,
+      },
+    );
   }
 }

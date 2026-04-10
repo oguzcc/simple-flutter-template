@@ -33,7 +33,7 @@ class LocalNotificationHandler {
       iOS: initializationSettingsDarwin,
     );
     await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse: _onTapNotification,
     );
   }
@@ -46,10 +46,10 @@ class LocalNotificationHandler {
   Future<void> showNotification({required String title, String? body}) async {
     notificationId++;
     await flutterLocalNotificationsPlugin!.show(
-      notificationId,
-      title,
-      body,
-      const NotificationDetails(
+      id: notificationId,
+      title: title,
+      body: body,
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'general',
           'General',
