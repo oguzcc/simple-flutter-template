@@ -1,28 +1,11 @@
-import 'package:daisy/core/manager/local/config_client.dart';
-
 sealed class CoreStrings {
-  static const sentryDnsURL = 'https://sentry.io/';
-
+  // MARK: API URLs
+  //
+  // PRODUCTION TODO: Replace these placeholder URLs with your actual
+  // backend endpoints for each flavor.
   static const devUrl = 'http://localhost:3000';
-  static const stgUrl = 'https://staging.invoice.com';
-  static const prodUrl = 'https://invoice.com';
-
-  static String get sentryDsn {
-    switch (ConfigClient.platform) {
-      case 'iOS':
-        return '$sentryDnsURL/iOSProjectKey';
-      case 'Android':
-        return '$sentryDnsURL/AndroidProjectKey';
-      case 'Web':
-        return '$sentryDnsURL/WebProjectKey';
-      case 'Windows':
-        return '$sentryDnsURL/WindowsProjectKey';
-      case 'Mac':
-        return '$sentryDnsURL/MacProjectKey';
-      default:
-        return '$sentryDnsURL/DefaultProjectKey';
-    }
-  }
+  static const stgUrl = 'https://staging.example.com';
+  static const prodUrl = 'https://example.com';
 
   // MARK: Connection
   static const online = 'You are now online';

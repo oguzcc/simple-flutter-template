@@ -102,30 +102,6 @@ class EnvironmentValidationService {
       ),
     );
 
-    // Check Sentry configuration
-    final sentryDsn = CoreStrings.sentryDsn;
-    final isDummySentry =
-        sentryDsn.contains('sentry.io/') &&
-        (sentryDsn.contains('ProjectKey') ||
-            sentryDsn.contains('DefaultProjectKey'));
-
-    results.add(
-      ValidationResult(
-        category: 'API',
-        item: 'Sentry DSN',
-        isValid: !isDummySentry,
-        status: isDummySentry
-            ? ValidationStatus.dummy
-            : ValidationStatus.production,
-        description: isDummySentry
-            ? 'Using placeholder Sentry DSN'
-            : 'Sentry DSN configured',
-        recommendation: isDummySentry
-            ? 'Replace with actual Sentry DSN from Sentry project settings'
-            : null,
-      ),
-    );
-
     return results;
   }
 

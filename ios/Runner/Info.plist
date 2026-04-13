@@ -72,16 +72,10 @@
     <!-- Indicates whether the app uses non-exempt encryption for TestFlight -->
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
-    <!-- Google Sign-In Configuration -->
-    <!-- TODO: Get the REVERSED_CLIENT_ID from Firebase Console:
-         1. Go to https://console.firebase.google.com/
-         2. Select your project (daisy-c1c2c)
-         3. Go to Project Settings > General
-         4. Scroll down to "Your apps" section
-         5. Select the iOS app (com.example.daisy)
-         6. Download GoogleService-Info.plist
-         7. Find the REVERSED_CLIENT_ID value
-         8. Replace the placeholder below with actual value
+    <!-- Google Sign-In Configuration
+         PRODUCTION TODO: Replace the REVERSED_CLIENT_ID placeholder below with the
+         actual value from GoogleService-Info.plist (downloaded from Firebase Console).
+         Without this, Google Sign-In on iOS will not work.
     -->
     <key>CFBundleURLTypes</key>
     <array>
@@ -90,7 +84,6 @@
         <string>Editor</string>
         <key>CFBundleURLSchemes</key>
         <array>
-          <!-- TODO: Replace with actual REVERSED_CLIENT_ID from GoogleService-Info.plist -->
           <string>com.googleusercontent.apps.REPLACE-WITH-REVERSED-CLIENT-ID</string>
         </array>
       </dict>

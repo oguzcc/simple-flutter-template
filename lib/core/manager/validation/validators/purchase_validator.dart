@@ -28,27 +28,6 @@ class PurchaseValidator {
     results.add(
       ValidationResult(
         category: 'Purchase',
-        item: 'Product IDs',
-        isValid: !isDummyMode,
-        status: isDummyMode
-            ? ValidationStatus.dummy
-            : ValidationStatus.production,
-        description: isDummyMode
-            ? 'Using ${PurchaseConfig.dummyProductIds.length} dummy product IDs'
-            : 'Using production product IDs',
-        recommendation: isDummyMode
-            ? 'Replace with actual product IDs from App Store Connect / Google Play Console'
-            : null,
-        metadata: {
-          'product_count': PurchaseConfig.dummyProductIds.length,
-          'products': PurchaseConfig.dummyProductIds.keys.toList(),
-        },
-      ),
-    );
-
-    results.add(
-      ValidationResult(
-        category: 'Purchase',
         item: 'Entitlements',
         isValid: !isDummyMode,
         status: isDummyMode

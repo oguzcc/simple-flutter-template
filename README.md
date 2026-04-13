@@ -2,6 +2,8 @@
 
 Üretim-hazır Flutter başlangıç şablonu. Clean Architecture + BLoC, çoklu flavor, Firebase ekosistemi, sosyal login, RevenueCat, lokalizasyon ve temel güvenlik/UX iyileştirmeleri ile gelir.
 
+> 🚀 **Yeni bir projeye mi uyarlıyorsun?** Aşağı inip [Template Setup Checklist](#template-setup-checklist) bölümünü takip et.
+
 ## Mimari
 
 ```
@@ -62,6 +64,115 @@ flutter run --flavor production  -t lib/main_production.dart
 ```
 
 Her flavor'a özel `.env.development`, `.env.staging`, `.env.production` dosyaları `assets/` olarak bundle edilir. **Gerçek sırlar asla bu dosyalara yazılmamalıdır** — local override için `.env.*.local` pattern'i `.gitignore`'da ignore edilir.
+
+## Template Setup Checklist
+
+Template'i yeni bir projeye adapte etmek için aşağıdaki adımları **sırayla** uygula. Her adımın başındaki kutucuğu kontrol et — hiçbirini atlama, aksi halde build kırılır veya store'a yüklenemez.
+
+### 1. Proje ismi değiştir (`daisy` → senin projen)
+
+`daisy` referansı tüm Dart importlarında ve platform config'lerde geçiyor. Toplu değiştir:
+
+```bash
+# 1. pubspec.yaml'daki name alanını değiştir
+# 2. Tüm Dart importlarını güncelle:
+find lib test -name "*.dart" -exec sed -i '' 's|package:daisy/|package:PROJECT_NAME/|g' {} +
+
+# 3. Android MainActivity'nin paket yolunu taşı (örneğin com.yourco.projectname):
+#    android/app/src/main/kotlin/com/example/daisy/MainActivity.kt
+#    → android/app/src/main/kotlin/com/yourco/projectname/MainActivity.kt
+#    Dosyanın içindeki `package com.example.daisy` satırını da güncelle.
+
+# 4. Değiştir:
+flutter clean && flutter pub get
+```
+
+### 2. Bundle ID / Application ID
+
+- **Android**: [android/app/build.gradle:16-32](android/app/build.gradle#L16) — 3 flavor için `applicationId` (örn. `com.yourco.app.dev`, `.stg`, `.app`). `namespace` alanı da güncellenecek.
+- **iOS**: Xcode → Runner target → Signing & Capabilities → Bundle Identifier, flavor scheme'lerine göre (`com.yourco.app`, `.dev`, `.stg`)
+- [flavorizr.yaml](flavorizr.yaml) — tüm flavor bundle ID ve görünen isimleri tek yerden yönetilir. Güncelledikten sonra `./script/flavorizr.sh` çalıştır.
+
+### 3. Firebase projesini bağla
+
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure
+```
+
+Bu komut `lib/firebase_options.dart`, `android/app/google-services.json` ve `ios/Runner/GoogleService-Info.plist` dosyalarını senin projene göre üretir.
+
+- [validators/firebase_validator.dart:32](lib/core/manager/validation/validators/firebase_validator.dart#L32) — `'daisy-c1c2c'` hardcoded string'i artık senin project ID'nle eşleşmeyecek, dolayısıyla `isDummyProject` check'i doğru çalışacak. İstersen bu string'i kendi dummy project ID'nle değiştirebilirsin.
+
+### 4. Credentials & TODO'lar
+
+Template'te 4 kritik TODO var (hepsi `⚠️ PRODUCTION TODO` etiketli):
+
+| Dosya | Ne | Kaynak |
+|-------|-----|--------|
+| [auth_config.dart:14](lib/core/config/auth_config.dart#L14) | Google OAuth Client ID | Google Cloud Console > OAuth credentials |
+| [auth_config.dart:20](lib/core/config/auth_config.dart#L20) | Apple Service ID | Apple Developer > Identifiers |
+| [purchase_config.dart:15](lib/core/config/purchase_config.dart#L15) | RevenueCat API Key | RevenueCat Dashboard > API Keys |
+| [purchase_config.dart:22](lib/core/config/purchase_config.dart#L22) | Entitlement ID'leri | RevenueCat Dashboard > Entitlements |
+
+iOS Google Sign-In için ayrıca [ios/Runner/Info.plist](ios/Runner/Info.plist)'teki `REPLACE-WITH-REVERSED-CLIENT-ID` placeholder'ını `GoogleService-Info.plist`'ten aldığın `REVERSED_CLIENT_ID` ile değiştir.
+
+### 5. API URL'leri ve Environment
+
+- [core_strings.dart:6-8](lib/core/config/core_strings.dart#L6-L8) — `devUrl`, `stgUrl`, `prodUrl` placeholder'larını (`localhost:3000`, `staging.example.com`, `example.com`) senin backend'inle değiştir.
+- `.env.development`, `.env.staging`, `.env.production` — uygulamaya bundle edilen env dosyaları. Placeholder'ları güncelle. **Gerçek sırlar buraya yazılmamalı** — local override için `.env.*.local` kullan (gitignore'da).
+
+### 6. Branding (logo, splash, renkler, font)
+
+- **Logo**: `assets/image/app_logo.png` — senin logonu bu isimle koy, sonra:
+  ```bash
+  dart run flutter_launcher_icons
+  dart run flutter_native_splash:create
+  ```
+- **Splash rengi**: [pubspec.yaml](pubspec.yaml) `flutter_native_splash > color` (template mavisi `#42a5f5`)
+- **Tema renkleri**: [lib/core/style/theme.dart](lib/core/style/theme.dart) — [Material Theme Builder](https://material-foundation.github.io/material-theme-builder/) ile kendi paletini üret ve `ColorScheme` değerlerini yapıştır
+- **Font**: [lib/app/app.dart:19](lib/app/app.dart#L19) — `'Rubik'` yerine [Google Fonts](https://fonts.google.com/) katalogundan istediğin fontu yaz
+- **Uygulama başlığı**: [lib/app/app.dart:23](lib/app/app.dart#L23) — `title: 'Flutter Template'`
+
+### 7. Release Signing & Store hazırlığı
+
+- **Android**: [android/app/build.gradle:61-65](android/app/build.gradle#L61) — release build şu an debug key ile imzalanıyor, Play Store'a yüklenemez. `android/key.properties` oluştur ve release signing config'ini tanımla ([Flutter docs](https://docs.flutter.dev/deployment/android#signing-the-app))
+- **iOS**: Xcode → Runner → Signing & Capabilities → Team seçimi + provisioning profile
+- **Android minSdk**: [android/app/build.gradle](android/app/build.gradle) — şu an 23, Firebase 24+ öneriyor (dev seçimi)
+
+### 8. Localization içeriği
+
+- [assets/translation/en-US.json](assets/translation/en-US.json) ve [tr-TR.json](assets/translation/tr-TR.json) — jenerik şablon string'leri içeriyor, domain'ine göre güncelle
+- Yeni dil eklenecekse aynı formatta JSON dosyası + [app.dart](lib/app/app.dart)'ta `supportedLocales` güncelle
+- String ekledikten sonra locale keys'i regenerate et:
+  ```bash
+  ./script/lang.sh
+  ```
+
+### 9. (Opsiyonel) Firebase Remote Config — Force/Soft Update
+
+[ForceUpdateManager](lib/core/manager/remote/force_update_manager.dart) kullanılacaksa Firebase Remote Config'e şu anahtarları ekle:
+- `android_min_version`, `ios_min_version`
+- `android_current_version`, `ios_current_version`
+- `is_force_update_required` (bool)
+- `android_store_url`, `ios_store_url`
+- `update_message_tr`, `update_message_en`
+
+### 10. Doğrulama
+
+Tüm adımlar tamamlandıktan sonra:
+
+```bash
+flutter clean
+flutter pub get
+flutter analyze                                          # temiz olmalı
+flutter test                                             # testler geçmeli
+flutter run --flavor development -t lib/main_development.dart  # çalışmalı
+```
+
+İlk çalıştırmada `EnvironmentValidationService` bootstrap'te tüm config'leri kontrol edip log basar — "dummy" kalan alanlar olursa konsol çıktısında görünür.
+
+---
 
 ## İlk Kurulum
 
@@ -143,7 +254,7 @@ Test'ler `bloc_test` + `mocktail` kullanır. Mevcut kapsama:
 Template, satın alma akışı için **RevenueCat'in native paywall**'unu kullanır ([purchases_ui_flutter](https://pub.dev/packages/purchases_ui_flutter)). Custom paywall UI yok — tüm paywall tasarımı RevenueCat dashboard'unda yapılandırılır.
 
 **Setup:**
-1. [purchase_config.dart](lib/core/config/purchase_config.dart)'ta `dummyRevenueCatApiKey`, `dummyEntitlements` ve `dummyProductIds`'i gerçek değerlerle değiştir
+1. [purchase_config.dart](lib/core/config/purchase_config.dart)'ta `dummyRevenueCatApiKey` ve `dummyEntitlements`'ı gerçek değerlerle değiştir
 2. RevenueCat dashboard'unda paywall'u yapılandır (Offerings → Paywall tab)
 
 **Kullanım:**
