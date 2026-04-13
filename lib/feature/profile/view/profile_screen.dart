@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:daisy/core/enum/common_enum.dart';
 import 'package:daisy/core/extension/string_extension.dart';
 import 'package:daisy/data/model/auth/login_response_model.dart';
@@ -20,17 +21,13 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(title: Text(LocaleKeys.common_profile.t)),
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
-          // Handle successful logout
           if (state.authStatus == AuthStatus.unauthenticated) {
-            // Navigate to login screen
             context.goNamed(Screens.enhancedLogin.name);
-
-            // Show logout success message
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Successfully logged out'),
+              SnackBar(
+                content: Text(LocaleKeys.auth_logoutSuccess.t),
                 backgroundColor: Colors.green,
-                duration: Duration(seconds: 2),
+                duration: const Duration(seconds: 2),
               ),
             );
           }
@@ -55,22 +52,10 @@ class ProfileScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        // Profile Picture
-                        CircleAvatar(
-                          radius: 40,
+                        _ProfileAvatar(
+                          photoUrl: currentUser?.photoURL,
+                          isAnonymous: isAnonymous,
                           backgroundColor: theme.primaryColor,
-                          backgroundImage: currentUser?.photoURL != null
-                              ? NetworkImage(currentUser!.photoURL!)
-                              : null,
-                          child: currentUser?.photoURL == null
-                              ? Icon(
-                                  isAnonymous
-                                      ? Icons.person_outline
-                                      : Icons.person,
-                                  size: 40,
-                                  color: Colors.white,
-                                )
-                              : null,
                         ),
 
                         const Gap.md(),
@@ -86,10 +71,11 @@ class ProfileScreen extends StatelessWidget {
 
                         const Gap.xs(),
 
-                        // User Email or Status
                         Text(
                           currentUser?.email ??
-                              (isAnonymous ? 'Anonymous User' : 'No email'),
+                              (isAnonymous
+                                  ? LocaleKeys.auth_anonymousUser.t
+                                  : LocaleKeys.auth_noEmail.t),
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.textTheme.bodyMedium?.color
                                 ?.withValues(alpha: 0.7),
@@ -112,7 +98,7 @@ class ProfileScreen extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              'Guest Mode',
+                              LocaleKeys.auth_guestMode.t,
                               style: TextStyle(
                                 color: Colors.orange[700],
                                 fontSize: 12,
@@ -128,9 +114,8 @@ class ProfileScreen extends StatelessWidget {
 
                 const Gap.xl(),
 
-                // Account Actions
                 Text(
-                  'Account',
+                  LocaleKeys.profile_account.t,
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -138,23 +123,21 @@ class ProfileScreen extends StatelessWidget {
 
                 const Gap.md(),
 
-                // Login Type Information
                 _buildInfoCard(
                   context,
                   icon: _getLoginTypeIcon(state.loginType),
-                  title: 'Login Method',
+                  title: LocaleKeys.auth_loginMethod.t,
                   subtitle: _getLoginTypeDisplayName(state.loginType),
                   iconColor: _getLoginTypeColor(state.loginType),
                 ),
 
                 const Gap.md(),
 
-                // User ID Information (for debug)
                 if (currentUser?.uid != null)
                   _buildInfoCard(
                     context,
                     icon: Icons.badge_outlined,
-                    title: 'User ID',
+                    title: LocaleKeys.profile_userId.t,
                     subtitle: currentUser!.uid,
                     iconColor: Colors.blue,
                     isMonospace: true,
@@ -188,14 +171,14 @@ class ProfileScreen extends StatelessWidget {
                               ),
                             ),
                           )
-                        : const Row(
+                        : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.logout, size: 20),
-                              SizedBox(width: 8),
+                              const Icon(Icons.logout, size: 20),
+                              const SizedBox(width: 8),
                               Text(
-                                'Logout',
-                                style: TextStyle(
+                                LocaleKeys.auth_logout.t,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -230,7 +213,7 @@ class ProfileScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Guest Account',
+                              LocaleKeys.auth_guestAccount.t,
                               style: TextStyle(
                                 color: Colors.blue[700],
                                 fontWeight: FontWeight.bold,
@@ -241,8 +224,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'You are using a guest account. Your data may not be saved permanently. '
-                          'Consider signing in with a social account for better experience.',
+                          LocaleKeys.auth_guestAccountInfo.t,
                           style: TextStyle(
                             color: Colors.blue[600],
                             fontSize: 13,
@@ -334,14 +316,14 @@ class ProfileScreen extends StatelessWidget {
   String _getLoginTypeDisplayName(LoginType loginType) {
     switch (loginType) {
       case LoginType.apple:
-        return 'Sign in with Apple';
+        return LocaleKeys.auth_signInWithApple.t;
       case LoginType.google:
-        return 'Sign in with Google';
+        return LocaleKeys.auth_signInWithGoogle.t;
       case LoginType.anonymous:
-        return 'Anonymous / Guest';
+        return LocaleKeys.auth_signInAnonymous.t;
       case LoginType.unknown:
       default:
-        return 'Unknown';
+        return LocaleKeys.auth_signInUnknown.t;
     }
   }
 
@@ -362,38 +344,91 @@ class ProfileScreen extends StatelessWidget {
   void _showLogoutDialog(BuildContext context) {
     showDialog<void>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (dialogContext) {
         return AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
-              Icon(Icons.logout, color: Colors.red),
-              SizedBox(width: 8),
-              Text('Logout'),
+              const Icon(Icons.logout, color: Colors.red),
+              const SizedBox(width: 8),
+              Text(LocaleKeys.auth_logoutConfirmTitle.t),
             ],
           ),
-          content: const Text(
-            'Are you sure you want to logout? You will need to sign in again to access your account.',
-          ),
+          content: Text(LocaleKeys.auth_logoutConfirmBody.t),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(LocaleKeys.common_cancel.t),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                // Perform logout
-                context.read<AuthCubit>().signOut();
+                final authCubit = context.read<AuthCubit>();
+                Navigator.of(dialogContext).pop();
+                authCubit.signOut();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Logout'),
+              child: Text(LocaleKeys.auth_logout.t),
             ),
           ],
         );
       },
+    );
+  }
+}
+
+class _ProfileAvatar extends StatelessWidget {
+  const _ProfileAvatar({
+    required this.photoUrl,
+    required this.isAnonymous,
+    required this.backgroundColor,
+  });
+
+  final String? photoUrl;
+  final bool isAnonymous;
+  final Color backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final fallbackIcon = Icon(
+      isAnonymous ? Icons.person_outline : Icons.person,
+      size: 40,
+      color: Colors.white,
+    );
+
+    if (photoUrl == null || photoUrl!.isEmpty) {
+      return CircleAvatar(
+        radius: 40,
+        backgroundColor: backgroundColor,
+        child: fallbackIcon,
+      );
+    }
+
+    return ClipOval(
+      child: CachedNetworkImage(
+        imageUrl: photoUrl!,
+        width: 80,
+        height: 80,
+        fit: BoxFit.cover,
+        placeholder: (_, _) => CircleAvatar(
+          radius: 40,
+          backgroundColor: backgroundColor,
+          child: const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          ),
+        ),
+        errorWidget: (_, _, _) => CircleAvatar(
+          radius: 40,
+          backgroundColor: backgroundColor,
+          child: fallbackIcon,
+        ),
+      ),
     );
   }
 }

@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 
 import 'package:daisy/core/extension/context_extension.dart';
 import 'package:daisy/core/extension/string_extension.dart';

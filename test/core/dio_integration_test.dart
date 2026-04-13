@@ -18,7 +18,7 @@ void main() {
               builder: (context) {
                 final dio = Dio();
                 final apiOptions = MockApiOptions();
-                DioClient(dio, apiOptions, context);
+                DioClient(dio, apiOptions, onUnauthorized: () async {});
 
                 // Verify that the interceptor is added
                 final interceptors = dio.interceptors;
@@ -50,7 +50,7 @@ void main() {
               final apiOptions = MockApiOptions();
 
               expect(
-                () => DioClient(dio, apiOptions, context),
+                () => DioClient(dio, apiOptions, onUnauthorized: () async {}),
                 returnsNormally,
               );
               return Container();
@@ -67,7 +67,7 @@ void main() {
             builder: (context) {
               final dio = Dio();
               final apiOptions = MockApiOptions();
-              final client = DioClient(dio, apiOptions, context);
+              final client = DioClient(dio, apiOptions, onUnauthorized: () async {});
 
               // Test the method signature and basic structure
               expect(() => client.get('/test'), returnsNormally);
@@ -85,7 +85,7 @@ void main() {
             builder: (context) {
               final dio = Dio();
               final apiOptions = MockApiOptions();
-              final client = DioClient(dio, apiOptions, context);
+              final client = DioClient(dio, apiOptions, onUnauthorized: () async {});
 
               final testData = <String, dynamic>{'test': 'data'};
 
@@ -108,7 +108,7 @@ void main() {
             builder: (context) {
               final dio = Dio();
               final apiOptions = MockApiOptions();
-              final client = DioClient(dio, apiOptions, context);
+              final client = DioClient(dio, apiOptions, onUnauthorized: () async {});
 
               // Test that useStreaming parameter is accepted
               expect(
@@ -131,29 +131,27 @@ void main() {
       );
     });
 
-    test('should handle different HTTP methods', () {
-      testWidgets('HTTP methods test', (tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Builder(
-              builder: (context) {
-                final dio = Dio();
-                final apiOptions = MockApiOptions();
-                final client = DioClient(dio, apiOptions, context);
+    testWidgets('should handle different HTTP methods', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              final dio = Dio();
+              final apiOptions = MockApiOptions();
+              final client =
+                  DioClient(dio, apiOptions, onUnauthorized: () async {});
 
-                // Test all HTTP methods are available
-                expect(() => client.get('/test'), returnsNormally);
-                expect(() => client.post('/test'), returnsNormally);
-                expect(() => client.put('/test'), returnsNormally);
-                expect(() => client.patch('/test'), returnsNormally);
-                expect(() => client.delete('/test'), returnsNormally);
-                expect(() => client.getList('/test'), returnsNormally);
-                return Container();
-              },
-            ),
+              expect(() => client.get('/test'), returnsNormally);
+              expect(() => client.post('/test'), returnsNormally);
+              expect(() => client.put('/test'), returnsNormally);
+              expect(() => client.patch('/test'), returnsNormally);
+              expect(() => client.delete('/test'), returnsNormally);
+              expect(() => client.getList('/test'), returnsNormally);
+              return Container();
+            },
           ),
-        );
-      });
+        ),
+      );
     });
 
     test('should have configurable streaming methods', () {
@@ -170,7 +168,7 @@ void main() {
             builder: (context) {
               final dio = Dio();
               final apiOptions = MockApiOptions();
-              final client = DioClient(dio, apiOptions, context);
+              final client = DioClient(dio, apiOptions, onUnauthorized: () async {});
 
               final queryParams = <String, dynamic>{
                 'param1': 'value1',
@@ -203,7 +201,7 @@ void main() {
             builder: (context) {
               final dio = Dio();
               final apiOptions = MockApiOptions();
-              final client = DioClient(dio, apiOptions, context);
+              final client = DioClient(dio, apiOptions, onUnauthorized: () async {});
               final cancelToken = CancelToken();
 
               // Test that cancel token is accepted

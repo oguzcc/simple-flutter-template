@@ -69,6 +69,7 @@ dependencies:
 
   # Functional Programming
   fpdart: ^1.2.0
+  purchases_ui_flutter: ^9.16.1
 
 dev_dependencies:
   flutter_test:

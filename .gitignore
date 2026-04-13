@@ -49,6 +49,11 @@ app.*.map.json
 
 # DotEnv
 .env
+.env.local
+.env.*.local
+# NOTE: .env.development/.env.staging/.env.production are bundled as Flutter assets
+# (see pubspec.yaml). They MUST contain only placeholder/non-secret values.
+# Inject real secrets via CI/CD or use .env.*.local for local overrides.
 
 # GoogleService
 # lib/firebase_options.dart

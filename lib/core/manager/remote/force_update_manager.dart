@@ -1,11 +1,58 @@
 import 'dart:io';
 
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ForceUpdateManager {
   final _remoteConfig = FirebaseRemoteConfig.instance;
+
+  /// Checks the remote config and displays an update dialog if needed.
+  ///
+  /// - If [ForceUpdateStatus.required] is `true`, shows a non-dismissible
+  ///   dialog with only an "Update" action that opens the store URL.
+  /// - If an update is available but not forced, shows a dismissible dialog
+  ///   with "Update" + "Later" actions.
+  /// - If no update is needed, returns without showing anything.
+  Future<void> showUpdateDialogIfNeeded(BuildContext context) async {
+    final status = await checkForUpdate();
+    if (status.message == null || status.storeUrl == null) return;
+    if (!context.mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: !status.required,
+      builder: (dialogContext) => PopScope(
+        canPop: !status.required,
+        child: AlertDialog(
+          title: Text(
+            status.required ? 'Update Required' : 'Update Available',
+          ),
+          content: Text(status.message!),
+          actions: [
+            if (!status.required)
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Later'),
+              ),
+            FilledButton(
+              onPressed: () async {
+                final uri = Uri.tryParse(status.storeUrl!);
+                if (uri != null) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                }
+                if (!status.required && dialogContext.mounted) {
+                  Navigator.of(dialogContext).pop();
+                }
+              },
+              child: const Text('Update'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Future<void> initialize() async {
     try {

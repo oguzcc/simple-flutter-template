@@ -8,11 +8,11 @@ class HomeCubit extends Cubit<HomeState> {
 
   Future<void> fetchInitialData() async {
     emit(state.copyWith(status: HomeStatus.loading));
-    
+
     try {
       // Simulate fetching data
-      await Future.delayed(const Duration(seconds: 1));
-      
+      await Future<void>.delayed(const Duration(seconds: 1));
+
       // Here you would normally fetch:
       // - Home stories
       // - Home sliders
@@ -20,15 +20,19 @@ class HomeCubit extends Cubit<HomeState> {
       // - Products
       // - Campaigns
       // etc.
-      
-      emit(state.copyWith(
-        status: HomeStatus.success,
-      ));
+
+      emit(
+        state.copyWith(
+          status: HomeStatus.success,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        status: HomeStatus.error,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: HomeStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 }

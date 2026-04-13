@@ -1,4 +1,5 @@
 import 'dart:developer' as developer;
+
 import 'package:daisy/core/manager/validation/models/validation_result.dart';
 
 /// Specialized logger for configuration validation
@@ -11,7 +12,7 @@ class ValidationLogger {
   /// Log validation summary
   static void logSummary(ValidationSummary summary) {
     _logHeader('🔍 Configuration Validation Summary');
-    
+
     developer.log(
       '''
 ${_boldColor}Total Checks: ${summary.totalChecks}$_resetColor
@@ -27,7 +28,10 @@ ${_boldColor}Timestamp: ${summary.timestamp.toIso8601String()}$_resetColor
   }
 
   /// Log category results
-  static void logCategoryResults(String category, List<ValidationResult> results) {
+  static void logCategoryResults(
+    String category,
+    List<ValidationResult> results,
+  ) {
     if (results.isEmpty) return;
 
     _logSubHeader('📋 $category');
@@ -36,7 +40,7 @@ ${_boldColor}Timestamp: ${summary.timestamp.toIso8601String()}$_resetColor
       final status = result.status;
       final icon = status.icon;
       final color = status.colorCode;
-      
+
       developer.log(
         '$color$icon ${result.item}: ${status.description}$_resetColor',
         name: _loggerName,
@@ -75,13 +79,13 @@ ${_boldColor}Timestamp: ${summary.timestamp.toIso8601String()}$_resetColor
     }
 
     _logHeader('❌ Missing Configurations');
-    
+
     for (final item in missingItems) {
       developer.log(
         '${ValidationStatus.missing.colorCode}❌ ${item.category}: ${item.item}$_resetColor',
         name: _loggerName,
       );
-      
+
       if (item.recommendation?.isNotEmpty ?? false) {
         developer.log(
           '   💡 ${item.recommendation}',
@@ -101,7 +105,7 @@ ${_boldColor}Timestamp: ${summary.timestamp.toIso8601String()}$_resetColor
     }
 
     _logHeader('⚠️ Dummy/Development Configurations');
-    
+
     developer.log(
       '${ValidationStatus.warning.colorCode}The following configurations are using dummy/development values:$_resetColor',
       name: _loggerName,
@@ -112,7 +116,7 @@ ${_boldColor}Timestamp: ${summary.timestamp.toIso8601String()}$_resetColor
         '${ValidationStatus.dummy.colorCode}⚠️  ${item.category}: ${item.item}$_resetColor',
         name: _loggerName,
       );
-      
+
       if (item.recommendation?.isNotEmpty ?? false) {
         developer.log(
           '   💡 ${item.recommendation}',
@@ -128,7 +132,7 @@ ${_boldColor}Timestamp: ${summary.timestamp.toIso8601String()}$_resetColor
     String category,
   ) {
     _logSubHeader('📋 $category Production Checklist');
-    
+
     for (final item in checklist) {
       developer.log(
         '  $item',
@@ -140,7 +144,7 @@ ${_boldColor}Timestamp: ${summary.timestamp.toIso8601String()}$_resetColor
   /// Log environment warnings
   static void logEnvironmentWarnings() {
     _logHeader('⚠️ Environment Warnings');
-    
+
     developer.log(
       '''
 ${ValidationStatus.warning.colorCode}⚠️  This app is running with development configurations.$_resetColor
@@ -185,7 +189,7 @@ ${ValidationStatus.warning.colorCode}⚠️  Please review the production checkl
     required bool isProductionReady,
   }) {
     _logHeader('✅ Configuration Validation Complete');
-    
+
     if (isProductionReady) {
       _logSuccess('🎉 All configurations are production ready!');
     } else {

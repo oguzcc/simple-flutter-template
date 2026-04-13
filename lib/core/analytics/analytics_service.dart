@@ -294,7 +294,7 @@ class AnalyticsService {
   String _sanitizeEventName(String eventName) {
     return eventName
         .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9_]'), '_')
+        .replaceAll(RegExp('[^a-z0-9_]'), '_')
         .substring(0, eventName.length > 40 ? 40 : eventName.length);
   }
 

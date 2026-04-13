@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:daisy/data/notification/models/notification_action.dart';
+import 'package:daisy/router/router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Manages notification actions during app initialization
 /// Queues notifications received before app is fully ready
@@ -76,10 +78,7 @@ class NotificationQueueManager {
       'Processing ${_pendingActions.length} pending notification actions',
     );
     
-    for (final action in _pendingActions) {
-      _executeNotificationAction(action);
-    }
-    
+    _pendingActions.forEach(_executeNotificationAction);
     _pendingActions.clear();
   }
   
@@ -108,19 +107,24 @@ class NotificationQueueManager {
   /// Handles deep link notifications
   Future<void> _handleDeepLinkAction(NotificationAction action) async {
     final url = action.data['url'] as String?;
-    if (url != null) {
-      // TODO(dev): Implement deep link handling
-      developer.log('Deep link action: $url');
+    if (url == null) return;
+    developer.log('Deep link action: $url');
+    final uri = Uri.tryParse(url);
+    if (uri == null) return;
+
+    if (uri.hasScheme && (uri.scheme == 'http' || uri.scheme == 'https')) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      goRouter.go(uri.path.isEmpty ? url : uri.path);
     }
   }
-  
+
   /// Handles navigation notifications
   Future<void> _handleNavigationAction(NotificationAction action) async {
     final route = action.data['route'] as String?;
-    if (route != null) {
-      // TODO(dev): Implement navigation handling
-      developer.log('Navigation action: $route');
-    }
+    if (route == null) return;
+    developer.log('Navigation action: $route');
+    goRouter.go(route);
   }
   
   /// Handles general notifications

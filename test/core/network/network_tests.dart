@@ -1,7 +1,6 @@
 import 'package:daisy/core/config/api_options.dart';
 import 'package:daisy/core/manager/remote/dio_client.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -12,18 +11,14 @@ class MockDio extends Mock implements Dio {
 
 class MockApiOptions extends Mock implements IApiOption {}
 
-class MockBuildContext extends Mock implements BuildContext {}
-
 void main() {
   late DioClient dioClient;
   late MockDio mockDio;
   late MockApiOptions mockApiOptions;
-  late MockBuildContext mockContext;
 
   setUp(() {
     mockDio = MockDio();
     mockApiOptions = MockApiOptions();
-    mockContext = MockBuildContext();
 
     when(() => mockApiOptions.baseUrl).thenReturn('https://api.example.com');
     when(() => mockApiOptions.connectionTimeout)
@@ -32,7 +27,7 @@ void main() {
         .thenReturn(const Duration(seconds: 30));
     when(() => mockDio.interceptors).thenReturn(Interceptors());
 
-    dioClient = DioClient(mockDio, mockApiOptions, mockContext);
+    dioClient = DioClient(mockDio, mockApiOptions, onUnauthorized: () async {});
   });
 
   group('DioClient Tests', () {

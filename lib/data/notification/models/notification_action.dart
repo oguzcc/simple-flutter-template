@@ -27,13 +27,13 @@ class NotificationAction extends Equatable {
 
   @override
   List<Object?> get props => [
-        notificationId,
-        title,
-        body,
-        timestamp,
-        type,
-        data,
-      ];
+    notificationId,
+    title,
+    body,
+    timestamp,
+    type,
+    data,
+  ];
 
   NotificationAction copyWith({
     String? notificationId,

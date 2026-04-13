@@ -101,5 +101,23 @@ abstract class  LocaleKeys {
   static const error_unknown = 'error.unknown';
   static const error_default = 'error.default';
   static const error = 'error';
+  static const auth_logout = 'auth.logout';
+  static const auth_logoutConfirmTitle = 'auth.logoutConfirmTitle';
+  static const auth_logoutConfirmBody = 'auth.logoutConfirmBody';
+  static const auth_logoutSuccess = 'auth.logoutSuccess';
+  static const auth_loginMethod = 'auth.loginMethod';
+  static const auth_anonymousUser = 'auth.anonymousUser';
+  static const auth_noEmail = 'auth.noEmail';
+  static const auth_guestMode = 'auth.guestMode';
+  static const auth_guestAccount = 'auth.guestAccount';
+  static const auth_guestAccountInfo = 'auth.guestAccountInfo';
+  static const auth_signInWithApple = 'auth.signInWithApple';
+  static const auth_signInWithGoogle = 'auth.signInWithGoogle';
+  static const auth_signInAnonymous = 'auth.signInAnonymous';
+  static const auth_signInUnknown = 'auth.signInUnknown';
+  static const auth = 'auth';
+  static const profile_account = 'profile.account';
+  static const profile_userId = 'profile.userId';
+  static const profile = 'profile';
 
 }

@@ -82,7 +82,7 @@ class MetricsCollector implements IMetricsCollector {
 
   @override
   Future<Map<String, dynamic>> getMetrics() async {
-    return await _synchronized(() {
+    return _synchronized(() {
       final totalRequests = _counters['total_requests'] ?? 0;
       final streamedRequests = _counters['streamed_requests'] ?? 0;
       

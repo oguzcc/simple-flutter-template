@@ -1,22 +1,18 @@
-// ignore_for_file: unnecessary_statements
-
-import 'dart:ui' as ui;
-
 import 'package:daisy/router/router.dart';
 import 'package:flutter/material.dart';
 
 /// Ekran boyutlarını tutmak için yazıldı
 class SizeConfig {
-  // ignore: lines_longer_than_80_chars
-  /// static MediaQueryData __mediaQueryData = MediaQueryData.fromWindow(ui.window);
   static double _statusBarHeight = 0;
   static double _screenWidth = 0;
   static double _screenHeight = 0;
 
   static MediaQueryData get _mediaQueryData {
     final ctx = rootNavigatorKey.currentContext;
-    // ignore: deprecated_member_use
-    if (ctx == null) return MediaQueryData.fromView(ui.window);
+    if (ctx == null) {
+      final view = WidgetsBinding.instance.platformDispatcher.views.first;
+      return MediaQueryData.fromView(view);
+    }
 
     return MediaQuery.of(ctx);
   }

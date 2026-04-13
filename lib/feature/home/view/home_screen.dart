@@ -30,13 +30,16 @@ class _HomeScreenState extends State<HomeScreen>
         builder: (context, state) {
           return Column(
             children: [
-              Flexible(
-                child: ListView(
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
                       'Current Tag: ${state.currentTag?.id ?? 'No Id'} - '
                       '${state.currentTag?.name ?? 'No Name'}',
                     ),
+                    const Gap.xs(),
                     TextField(controller: cTag),
                     const Gap.xs(),
                     Button.elevated(
@@ -60,12 +63,14 @@ class _HomeScreenState extends State<HomeScreen>
                   ],
                 ),
               ),
-              Flexible(
+              const Divider(height: 1),
+              Expanded(
                 child: ListView.builder(
                   itemCount: state.tagList.length,
                   itemBuilder: (context, index) {
                     final tag = state.tagList[index];
                     return ListTile(
+                      key: ValueKey(tag.id ?? 'tag-$index'),
                       title: Text(tag.name ?? 'No Name'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,

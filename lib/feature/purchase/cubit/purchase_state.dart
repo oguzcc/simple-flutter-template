@@ -4,9 +4,6 @@ class PurchaseState extends Equatable {
   const PurchaseState({
     this.status = Status.initial,
     this.isInitialized = false,
-    this.purchaseInProgress = false,
-    this.lastPurchaseSuccess = false,
-    this.availablePackages = const [],
     this.customerInfo,
     this.hasPremium = false,
     this.hasPro = false,
@@ -18,9 +15,6 @@ class PurchaseState extends Equatable {
 
   final Status status;
   final bool isInitialized;
-  final bool purchaseInProgress;
-  final bool lastPurchaseSuccess;
-  final List<Package> availablePackages;
   final CustomerInfo? customerInfo;
   final bool hasPremium;
   final bool hasPro;
@@ -33,9 +27,6 @@ class PurchaseState extends Equatable {
   List<Object?> get props => [
         status,
         isInitialized,
-        purchaseInProgress,
-        lastPurchaseSuccess,
-        availablePackages,
         customerInfo,
         hasPremium,
         hasPro,
@@ -48,9 +39,6 @@ class PurchaseState extends Equatable {
   PurchaseState copyWith({
     Status? status,
     bool? isInitialized,
-    bool? purchaseInProgress,
-    bool? lastPurchaseSuccess,
-    List<Package>? availablePackages,
     CustomerInfo? customerInfo,
     bool? hasPremium,
     bool? hasPro,
@@ -62,9 +50,6 @@ class PurchaseState extends Equatable {
     return PurchaseState(
       status: status ?? this.status,
       isInitialized: isInitialized ?? this.isInitialized,
-      purchaseInProgress: purchaseInProgress ?? this.purchaseInProgress,
-      lastPurchaseSuccess: lastPurchaseSuccess ?? this.lastPurchaseSuccess,
-      availablePackages: availablePackages ?? this.availablePackages,
       customerInfo: customerInfo ?? this.customerInfo,
       hasPremium: hasPremium ?? this.hasPremium,
       hasPro: hasPro ?? this.hasPro,

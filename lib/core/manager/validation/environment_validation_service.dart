@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:daisy/core/config/auth_config.dart';
@@ -7,7 +6,9 @@ import 'package:daisy/core/config/purchase_config.dart';
 import 'package:daisy/core/config/video_config.dart';
 import 'package:daisy/core/manager/validation/models/validation_result.dart';
 import 'package:daisy/core/manager/validation/validation_logger.dart';
-import 'package:daisy/firebase_options.dart';
+import 'package:daisy/core/manager/validation/validators/auth_validator.dart';
+import 'package:daisy/core/manager/validation/validators/firebase_validator.dart';
+import 'package:daisy/core/manager/validation/validators/purchase_validator.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -23,9 +24,9 @@ class EnvironmentValidationService {
     final Map<String, List<ValidationResult>> categoryResults = {};
 
     // Run all validation checks
-    final firebaseResults = await _validateFirebaseConfiguration();
-    final authResults = await _validateAuthConfiguration();
-    final purchaseResults = await _validatePurchaseConfiguration();
+    final firebaseResults = await FirebaseValidator.validate();
+    final authResults = await AuthValidator.validate();
+    final purchaseResults = await PurchaseValidator.validate();
     final apiResults = await _validateApiConfiguration();
     final assetResults = await _validateAssets();
     final platformResults = await _validatePlatformConfiguration();
@@ -65,298 +66,6 @@ class EnvironmentValidationService {
     return summary;
   }
 
-  /// Validate Firebase configuration
-  static Future<List<ValidationResult>> _validateFirebaseConfiguration() async {
-    final results = <ValidationResult>[];
-
-    // Check firebase_options.dart
-    try {
-      final webOptions = DefaultFirebaseOptions.web;
-      final androidOptions = DefaultFirebaseOptions.android;
-      final iosOptions = DefaultFirebaseOptions.ios;
-
-      results.add(
-        ValidationResult(
-          category: 'Firebase',
-          item: 'firebase_options.dart',
-          isValid: true,
-          status: ValidationStatus.valid,
-          description: 'Firebase options file exists and is accessible',
-        ),
-      );
-
-      // Check if using dummy project
-      final isDummyProject = webOptions.projectId.contains('daisy-c1c2c');
-      results.add(
-        ValidationResult(
-          category: 'Firebase',
-          item: 'Firebase Project ID',
-          isValid: !isDummyProject,
-          status: isDummyProject
-              ? ValidationStatus.dummy
-              : ValidationStatus.production,
-          description: isDummyProject
-              ? 'Using development Firebase project: ${webOptions.projectId}'
-              : 'Using production Firebase project: ${webOptions.projectId}',
-          recommendation: isDummyProject
-              ? 'Replace with production Firebase project ID before deployment'
-              : null,
-        ),
-      );
-
-      // Check API keys
-      results.add(
-        ValidationResult(
-          category: 'Firebase',
-          item: 'Firebase API Keys',
-          isValid: true,
-          status: ValidationStatus.valid,
-          description: 'API keys are configured for all platforms',
-          metadata: {
-            'web_api_key': '${webOptions.apiKey.substring(0, 10)}...',
-            'android_api_key': '${androidOptions.apiKey.substring(0, 10)}...',
-            'ios_api_key': '${iosOptions.apiKey.substring(0, 10)}...',
-          },
-        ),
-      );
-    } catch (e) {
-      results.add(
-        ValidationResult(
-          category: 'Firebase',
-          item: 'firebase_options.dart',
-          isValid: false,
-          status: ValidationStatus.invalid,
-          description: 'Error accessing Firebase options: $e',
-          recommendation:
-              'Run "flutterfire configure" to generate Firebase options',
-        ),
-      );
-    }
-
-    // Check google-services.json (Android)
-    final androidConfigFile = File('android/app/google-services.json');
-    if (await androidConfigFile.exists()) {
-      try {
-        final content = await androidConfigFile.readAsString();
-        final config = jsonDecode(content) as Map<String, dynamic>;
-        final projectInfo = config['project_info'] as Map<String, dynamic>?;
-
-        results.add(
-          ValidationResult(
-            category: 'Firebase',
-            item: 'google-services.json',
-            isValid: true,
-            status: ValidationStatus.valid,
-            description: 'Android Firebase configuration found',
-            metadata: {
-              'project_id': projectInfo?['project_id'] ?? 'unknown',
-              'file_size': '${content.length} bytes',
-            },
-          ),
-        );
-      } catch (e) {
-        results.add(
-          ValidationResult(
-            category: 'Firebase',
-            item: 'google-services.json',
-            isValid: false,
-            status: ValidationStatus.invalid,
-            description: 'Invalid JSON format in google-services.json: $e',
-            recommendation:
-                'Download new google-services.json from Firebase Console',
-          ),
-        );
-      }
-    } else {
-      results.add(
-        ValidationResult(
-          category: 'Firebase',
-          item: 'google-services.json',
-          isValid: false,
-          status: ValidationStatus.missing,
-          description: 'Android Firebase configuration file not found',
-          recommendation:
-              'Download google-services.json from Firebase Console to android/app/',
-        ),
-      );
-    }
-
-    // Check GoogleService-Info.plist (iOS)
-    final iosConfigFile = File('ios/Runner/GoogleService-Info.plist');
-    if (await iosConfigFile.exists()) {
-      results.add(
-        ValidationResult(
-          category: 'Firebase',
-          item: 'GoogleService-Info.plist',
-          isValid: true,
-          status: ValidationStatus.valid,
-          description: 'iOS Firebase configuration found',
-        ),
-      );
-    } else {
-      results.add(
-        ValidationResult(
-          category: 'Firebase',
-          item: 'GoogleService-Info.plist',
-          isValid: false,
-          status: ValidationStatus.missing,
-          description: 'iOS Firebase configuration file not found',
-          recommendation:
-              'Download GoogleService-Info.plist from Firebase Console to ios/Runner/',
-        ),
-      );
-    }
-
-    return results;
-  }
-
-  /// Validate authentication configuration
-  static Future<List<ValidationResult>> _validateAuthConfiguration() async {
-    final results = <ValidationResult>[];
-
-    // Check if using dummy credentials
-    final isDummyMode = AuthConfig.isDummyMode;
-
-    results.add(
-      ValidationResult(
-        category: 'Authentication',
-        item: 'Google Sign-In Client ID',
-        isValid: !isDummyMode,
-        status: isDummyMode
-            ? ValidationStatus.dummy
-            : ValidationStatus.production,
-        description: isDummyMode
-            ? 'Using dummy Google client ID: ${AuthConfig.dummyGoogleClientId}'
-            : 'Using production Google client ID',
-        recommendation: isDummyMode
-            ? 'Replace with actual Google OAuth client ID from Google Console'
-            : null,
-      ),
-    );
-
-    results.add(
-      ValidationResult(
-        category: 'Authentication',
-        item: 'Apple Sign-In Service ID',
-        isValid: !isDummyMode,
-        status: isDummyMode
-            ? ValidationStatus.dummy
-            : ValidationStatus.production,
-        description: isDummyMode
-            ? 'Using dummy Apple service ID: ${AuthConfig.dummyAppleServiceId}'
-            : 'Using production Apple service ID',
-        recommendation: isDummyMode
-            ? 'Replace with actual Apple service ID from Apple Developer'
-            : null,
-      ),
-    );
-
-    // Check production checklist completion
-    results.add(
-      ValidationResult(
-        category: 'Authentication',
-        item: 'Production Checklist',
-        isValid: !isDummyMode,
-        status: isDummyMode ? ValidationStatus.warning : ValidationStatus.valid,
-        description: isDummyMode
-            ? '${AuthConfig.productionChecklist.length} items need completion'
-            : 'Production checklist completed',
-        recommendation: isDummyMode
-            ? 'Complete all items in AuthConfig.productionChecklist'
-            : null,
-        metadata: isDummyMode
-            ? {'checklist_items': AuthConfig.productionChecklist.length}
-            : null,
-      ),
-    );
-
-    return results;
-  }
-
-  /// Validate purchase configuration
-  static Future<List<ValidationResult>> _validatePurchaseConfiguration() async {
-    final results = <ValidationResult>[];
-
-    // Check if using dummy credentials
-    final isDummyMode = PurchaseConfig.isDummyMode;
-
-    results.add(
-      ValidationResult(
-        category: 'Purchase',
-        item: 'RevenueCat API Key',
-        isValid: !isDummyMode,
-        status: isDummyMode
-            ? ValidationStatus.dummy
-            : ValidationStatus.production,
-        description: isDummyMode
-            ? 'Using dummy RevenueCat API key'
-            : 'Using production RevenueCat API key',
-        recommendation: isDummyMode
-            ? 'Replace with actual RevenueCat public API key from dashboard'
-            : null,
-      ),
-    );
-
-    results.add(
-      ValidationResult(
-        category: 'Purchase',
-        item: 'Product IDs',
-        isValid: !isDummyMode,
-        status: isDummyMode
-            ? ValidationStatus.dummy
-            : ValidationStatus.production,
-        description: isDummyMode
-            ? 'Using ${PurchaseConfig.dummyProductIds.length} dummy product IDs'
-            : 'Using production product IDs',
-        recommendation: isDummyMode
-            ? 'Replace with actual product IDs from App Store Connect / Google Play Console'
-            : null,
-        metadata: {
-          'product_count': PurchaseConfig.dummyProductIds.length,
-          'products': PurchaseConfig.dummyProductIds.keys.toList(),
-        },
-      ),
-    );
-
-    results.add(
-      ValidationResult(
-        category: 'Purchase',
-        item: 'Entitlements',
-        isValid: !isDummyMode,
-        status: isDummyMode
-            ? ValidationStatus.dummy
-            : ValidationStatus.production,
-        description: isDummyMode
-            ? 'Using ${PurchaseConfig.dummyEntitlements.length} dummy entitlements'
-            : 'Using production entitlements',
-        recommendation: isDummyMode
-            ? 'Configure actual entitlements in RevenueCat Dashboard'
-            : null,
-        metadata: {
-          'entitlement_count': PurchaseConfig.dummyEntitlements.length,
-          'entitlements': PurchaseConfig.dummyEntitlements.keys.toList(),
-        },
-      ),
-    );
-
-    // Check production checklist
-    results.add(
-      ValidationResult(
-        category: 'Purchase',
-        item: 'Production Checklist',
-        isValid: !isDummyMode,
-        status: isDummyMode ? ValidationStatus.warning : ValidationStatus.valid,
-        description: isDummyMode
-            ? '${PurchaseConfig.productionChecklist.length} items need completion'
-            : 'Production checklist completed',
-        recommendation: isDummyMode
-            ? 'Complete all items in PurchaseConfig.productionChecklist'
-            : null,
-      ),
-    );
-
-    return results;
-  }
 
   /// Validate API configuration
   static Future<List<ValidationResult>> _validateApiConfiguration() async {
@@ -428,7 +137,7 @@ class EnvironmentValidationService {
     try {
       await rootBundle.load(VideoConfig.introVideo);
       results.add(
-        ValidationResult(
+        const ValidationResult(
           category: 'Assets',
           item: 'Intro Video',
           isValid: true,
@@ -438,7 +147,7 @@ class EnvironmentValidationService {
       );
     } catch (e) {
       results.add(
-        ValidationResult(
+        const ValidationResult(
           category: 'Assets',
           item: 'Intro Video',
           isValid: false,
@@ -454,7 +163,7 @@ class EnvironmentValidationService {
     try {
       await rootBundle.load('assets/image/app_logo.png');
       results.add(
-        ValidationResult(
+        const ValidationResult(
           category: 'Assets',
           item: 'App Logo',
           isValid: true,
@@ -464,7 +173,7 @@ class EnvironmentValidationService {
       );
     } catch (e) {
       results.add(
-        ValidationResult(
+        const ValidationResult(
           category: 'Assets',
           item: 'App Logo',
           isValid: false,
@@ -485,7 +194,7 @@ class EnvironmentValidationService {
     // Check platform
     if (Platform.isIOS) {
       results.add(
-        ValidationResult(
+        const ValidationResult(
           category: 'Platform',
           item: 'iOS Platform',
           isValid: true,
@@ -495,7 +204,7 @@ class EnvironmentValidationService {
       );
     } else if (Platform.isAndroid) {
       results.add(
-        ValidationResult(
+        const ValidationResult(
           category: 'Platform',
           item: 'Android Platform',
           isValid: true,
@@ -525,7 +234,7 @@ class EnvironmentValidationService {
 
     // Check shorebird.yaml
     final shorebirdFile = File('shorebird.yaml');
-    if (await shorebirdFile.exists()) {
+    if (shorebirdFile.existsSync()) {
       try {
         final content = await shorebirdFile.readAsString();
 
@@ -585,7 +294,7 @@ class EnvironmentValidationService {
       }
     } else {
       results.add(
-        ValidationResult(
+        const ValidationResult(
           category: 'Shorebird',
           item: 'shorebird.yaml',
           isValid: false,
@@ -637,7 +346,7 @@ class EnvironmentValidationService {
 
     // Check store URLs format
     results.add(
-      ValidationResult(
+      const ValidationResult(
         category: 'Remote Config',
         item: 'Store URLs',
         isValid: false,
@@ -652,7 +361,7 @@ class EnvironmentValidationService {
 
     // Check version format
     results.add(
-      ValidationResult(
+      const ValidationResult(
         category: 'Remote Config',
         item: 'Version Format',
         isValid: true,
@@ -693,7 +402,7 @@ class EnvironmentValidationService {
         );
       } else {
         results.add(
-          ValidationResult(
+          const ValidationResult(
             category: 'Analytics',
             item: 'Smartlook API Key',
             isValid: false,
@@ -723,7 +432,7 @@ class EnvironmentValidationService {
         );
       } else {
         results.add(
-          ValidationResult(
+          const ValidationResult(
             category: 'Analytics',
             item: 'Mixpanel Project Token',
             isValid: false,
@@ -737,7 +446,7 @@ class EnvironmentValidationService {
 
       // Check Firebase Analytics (always available if Firebase is configured)
       results.add(
-        ValidationResult(
+        const ValidationResult(
           category: 'Analytics',
           item: 'Firebase Analytics',
           isValid: true,
@@ -748,7 +457,7 @@ class EnvironmentValidationService {
 
       // Analytics integration status
       results.add(
-        ValidationResult(
+        const ValidationResult(
           category: 'Analytics',
           item: 'Unified Analytics Service',
           isValid: true,
@@ -769,7 +478,7 @@ class EnvironmentValidationService {
 
       // Privacy compliance features
       results.add(
-        ValidationResult(
+        const ValidationResult(
           category: 'Analytics',
           item: 'Privacy Features',
           isValid: true,
@@ -907,13 +616,13 @@ class EnvironmentValidationService {
   ) async {
     switch (category.toLowerCase()) {
       case 'firebase':
-        return _validateFirebaseConfiguration();
+        return FirebaseValidator.validate();
       case 'auth':
       case 'authentication':
-        return _validateAuthConfiguration();
+        return AuthValidator.validate();
       case 'purchase':
       case 'purchases':
-        return _validatePurchaseConfiguration();
+        return PurchaseValidator.validate();
       case 'api':
         return _validateApiConfiguration();
       case 'assets':

@@ -14,7 +14,7 @@ class DaisyAnalyticsClient {
   }) {
     _tappedWidgets[widgetId] = (_tappedWidgets[widgetId] ?? 0) + 1;
     debugPrint(
-        'Widget tapped: $widgetId ($widgetType) - Count: ${_tappedWidgets[widgetId]}',
+      'Widget tapped: $widgetId ($widgetType) - Count: ${_tappedWidgets[widgetId]}',
     );
   }
 
@@ -26,7 +26,7 @@ class DaisyAnalyticsClient {
   }) {
     _tappedWidgets[buttonId] = (_tappedWidgets[buttonId] ?? 0) + 1;
     debugPrint(
-        'Button tapped: $buttonId ($buttonText) - Count: ${_tappedWidgets[buttonId]}',
+      'Button tapped: $buttonId ($buttonText) - Count: ${_tappedWidgets[buttonId]}',
     );
   }
 
@@ -84,7 +84,7 @@ class DaisyAnalyticsClient {
     final startTime = _screenStartTimes[screenName];
     if (startTime != null) {
       final duration = DateTime.now().difference(startTime);
-      _visitedScreens[screenName] = 
+      _visitedScreens[screenName] =
           (_visitedScreens[screenName] ?? Duration.zero) + duration;
       _screenStartTimes.remove(screenName);
     }

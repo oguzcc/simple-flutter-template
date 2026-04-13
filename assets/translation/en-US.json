@@ -131,5 +131,25 @@
     "timeout": "Request timeout",
     "unknown": "Unknown error",
     "default": "An error occurred. Please try again later."
+  },
+  "auth": {
+    "logout": "Logout",
+    "logoutConfirmTitle": "Logout",
+    "logoutConfirmBody": "Are you sure you want to logout? You will need to sign in again to access your account.",
+    "logoutSuccess": "Successfully logged out",
+    "loginMethod": "Login Method",
+    "anonymousUser": "Anonymous User",
+    "noEmail": "No email",
+    "guestMode": "Guest Mode",
+    "guestAccount": "Guest Account",
+    "guestAccountInfo": "You are using a guest account. Your data may not be saved permanently. Consider signing in with a social account for better experience.",
+    "signInWithApple": "Sign in with Apple",
+    "signInWithGoogle": "Sign in with Google",
+    "signInAnonymous": "Anonymous / Guest",
+    "signInUnknown": "Unknown"
+  },
+  "profile": {
+    "account": "Account",
+    "userId": "User ID"
   }
 }

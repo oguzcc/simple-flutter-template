@@ -9,10 +9,13 @@ mixin _FirebaseMixin {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     log('✅ Firebase initialized successfully');
-    
-    // TODO: Uncomment when Firebase Messaging is configured
-    // await FirebaseClient.initFirebaseMessaging();
-    // final token = await FirebaseClient.getFcmToken();
-    // log('FCM Token: $token');
+
+    try {
+      await FirebaseClient.initFirebaseMessaging();
+      final token = await FirebaseClient.getFcmToken();
+      log('📱 FCM Token: $token');
+    } on Object catch (e) {
+      log('⚠️ Firebase Messaging initialization failed: $e');
+    }
   }
 }

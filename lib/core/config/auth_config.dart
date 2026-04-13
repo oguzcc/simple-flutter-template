@@ -19,7 +19,7 @@ class AuthConfig {
   /// 
   /// ⚠️ PRODUCTION TODO: Replace with actual Apple service ID
   /// Format: 'com.yourcompany.yourapp.signin'
-  static const String dummyAppleServiceId = 'com.example.dasiy.signin';
+  static const String dummyAppleServiceId = 'com.example.daisy.signin';
 
   /// Production readiness checklist
   static const List<String> productionChecklist = [

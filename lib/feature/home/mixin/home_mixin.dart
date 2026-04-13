@@ -3,16 +3,24 @@ part of '../view/home_screen.dart';
 mixin HomeMixin<T extends StatefulWidget> on State<T> {
   final cTag = TextEditingController();
 
+  @override
+  void dispose() {
+    cTag.dispose();
+    super.dispose();
+  }
+
   Future<void> addTag() async {
     if (cTag.text.isEmpty) return;
-    await context.read<TagCubit>().addTag(TagModel(name: cTag.text));
-    await fetchTags();
+    final cubit = context.read<TagCubit>();
+    await cubit.addTag(TagModel(name: cTag.text));
+    await cubit.fetchTagList();
     cTag.clear();
   }
 
   Future<void> deleteTag(String id) async {
-    await context.read<TagCubit>().deleteTag(id);
-    await fetchTags();
+    final cubit = context.read<TagCubit>();
+    await cubit.deleteTag(id);
+    await cubit.fetchTagList();
   }
 
   Future<void> fetchSingleTag(String id) async {
@@ -33,15 +41,13 @@ mixin HomeMixin<T extends StatefulWidget> on State<T> {
 
   Future<void> init() async {
     await fetchTags();
-    // fetchSingleTag("8Nt6c4oDlLXFTVid72Vc");
-    // fetchTagListByQuery('name', 'books');
-    // fetchTagListByArrayContains('name', 'books');
   }
 
   Future<void> updateTag(String id) async {
+    final cubit = context.read<TagCubit>();
     Navigator.of(context).pop();
-    await context.read<TagCubit>().updateTag(TagModel(name: cTag.text, id: id));
-    await fetchTags();
+    await cubit.updateTag(TagModel(name: cTag.text, id: id));
+    await cubit.fetchTagList();
     cTag.clear();
   }
 }

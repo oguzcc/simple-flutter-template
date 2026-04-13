@@ -52,7 +52,7 @@ enum StreamingErrorType {
 abstract interface class IErrorReporter {
   /// Report a streaming error
   Future<void> reportError(StreamingError error);
-  
+
   /// Report a simple error with automatic categorization
   Future<void> reportSimpleError(
     String message, {
@@ -60,10 +60,10 @@ abstract interface class IErrorReporter {
     Map<String, dynamic>? context,
     StackTrace? stackTrace,
   });
-  
+
   /// Get recent errors for debugging
   List<StreamingError> getRecentErrors();
-  
+
   /// Clear error history
   void clearErrors();
 }
@@ -77,14 +77,14 @@ class ErrorReporter implements IErrorReporter {
 
   final int maxErrorHistory;
   final bool enableDebugLogging;
-  
+
   final List<StreamingError> _errorHistory = <StreamingError>[];
 
   @override
   Future<void> reportError(StreamingError error) async {
     // Add to history
     _errorHistory.add(error);
-    
+
     // Maintain size limit
     if (_errorHistory.length > maxErrorHistory) {
       _errorHistory.removeRange(0, _errorHistory.length - maxErrorHistory);
@@ -119,12 +119,12 @@ class ErrorReporter implements IErrorReporter {
       context: context,
       stackTrace: stackTrace,
     );
-    
+
     await reportError(error);
   }
 
   @override
-  List<StreamingError> getRecentErrors() => 
+  List<StreamingError> getRecentErrors() =>
       List<StreamingError>.unmodifiable(_errorHistory);
 
   @override
@@ -133,17 +133,17 @@ class ErrorReporter implements IErrorReporter {
   /// Automatic error categorization based on message content
   StreamingErrorType _categorizeError(String message) {
     final lowerMessage = message.toLowerCase();
-    
+
     if (lowerMessage.contains('timeout')) {
       return StreamingErrorType.timeout;
-    } else if (lowerMessage.contains('network') || 
-               lowerMessage.contains('socket')) {
+    } else if (lowerMessage.contains('network') ||
+        lowerMessage.contains('socket')) {
       return StreamingErrorType.network;
-    } else if (lowerMessage.contains('memory') || 
-               lowerMessage.contains('buffer')) {
+    } else if (lowerMessage.contains('memory') ||
+        lowerMessage.contains('buffer')) {
       return StreamingErrorType.memory;
-    } else if (lowerMessage.contains('decode') || 
-               lowerMessage.contains('json')) {
+    } else if (lowerMessage.contains('decode') ||
+        lowerMessage.contains('json')) {
       return StreamingErrorType.decoding;
     } else if (lowerMessage.contains('circuit')) {
       return StreamingErrorType.circuitBreaker;
@@ -157,7 +157,7 @@ class ErrorReporter implements IErrorReporter {
   /// Get error statistics for monitoring
   Map<String, dynamic> getErrorStatistics() {
     final typeCount = <StreamingErrorType, int>{};
-    
+
     for (final error in _errorHistory) {
       typeCount[error.type] = (typeCount[error.type] ?? 0) + 1;
     }
@@ -166,10 +166,10 @@ class ErrorReporter implements IErrorReporter {
       'total_errors': _errorHistory.length,
       'error_types': typeCount.map((k, v) => MapEntry(k.name, v)),
       'recent_errors': _errorHistory.take(5).map((e) => e.toJson()).toList(),
-      'oldest_error': _errorHistory.isNotEmpty 
+      'oldest_error': _errorHistory.isNotEmpty
           ? _errorHistory.first.timestamp.toIso8601String()
           : null,
-      'newest_error': _errorHistory.isNotEmpty 
+      'newest_error': _errorHistory.isNotEmpty
           ? _errorHistory.last.timestamp.toIso8601String()
           : null,
     };

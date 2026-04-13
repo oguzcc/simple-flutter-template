@@ -6,19 +6,19 @@ import 'package:flutter/foundation.dart';
 abstract interface class ICircuitBreakerService {
   /// Check if circuit breaker is open
   bool get isOpen;
-  
+
   /// Record a successful operation
   void recordSuccess();
-  
+
   /// Record a failed operation
   Future<void> recordFailure(String error);
-  
+
   /// Get circuit breaker metrics
   Map<String, dynamic> getMetrics();
-  
+
   /// Reset circuit breaker state
   void reset();
-  
+
   /// Dispose resources
   void dispose();
 }
@@ -38,7 +38,7 @@ class CircuitBreakerService implements ICircuitBreakerService {
   final bool isEnabled;
   final int maxConsecutiveFailures;
   final Duration timeout;
-  
+
   int _consecutiveFailures = 0;
   DateTime? _openedAt;
   bool _isOpen = false;
@@ -50,7 +50,7 @@ class CircuitBreakerService implements ICircuitBreakerService {
   @override
   void recordSuccess() {
     if (!isEnabled) return;
-    
+
     _consecutiveFailures = 0;
     if (_isOpen) {
       reset();
@@ -60,9 +60,9 @@ class CircuitBreakerService implements ICircuitBreakerService {
   @override
   Future<void> recordFailure(String error) async {
     if (!isEnabled) return;
-    
+
     _consecutiveFailures++;
-    
+
     if (_consecutiveFailures >= maxConsecutiveFailures && !_isOpen) {
       await _openCircuitBreaker();
     }
@@ -85,7 +85,7 @@ class CircuitBreakerService implements ICircuitBreakerService {
     _isOpen = false;
     _openedAt = null;
     _consecutiveFailures = 0;
-    
+
     if (kDebugMode) {
       debugPrint('✅ Circuit breaker reset');
     }
@@ -100,7 +100,7 @@ class CircuitBreakerService implements ICircuitBreakerService {
   Future<void> _openCircuitBreaker() async {
     _isOpen = true;
     _openedAt = DateTime.now();
-    
+
     if (kDebugMode) {
       debugPrint(
         '🚨 Circuit breaker opened after $_consecutiveFailures failures',
@@ -110,7 +110,7 @@ class CircuitBreakerService implements ICircuitBreakerService {
 
   void _initializePeriodicReset() {
     _resetTimer = Timer.periodic(timeout, (_) {
-      if (_isOpen && 
+      if (_isOpen &&
           _openedAt != null &&
           DateTime.now().difference(_openedAt!) > timeout) {
         reset();

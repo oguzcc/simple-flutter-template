@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> with _SplashMixin {
           children: [
             // Statik arkaplan
             Positioned.fill(
-              child: Container(
+              child: ColoredBox(
                 color: Colors.white,
                 child: Center(
                   child: Image.asset(
@@ -101,10 +101,10 @@ class _SplashScreenState extends State<SplashScreen> with _SplashMixin {
                             fit: BoxFit.contain,
                           ),
                           const SizedBox(height: 16),
-                          Text(
+                          const Text(
                             'Welcome to Daisy',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,

@@ -1,3 +1,5 @@
+import 'package:daisy/core/style/theme/button_theme.dart';
+import 'package:daisy/core/style/theme/input_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -345,6 +347,11 @@ class MaterialTheme {
         ),
         scaffoldBackgroundColor: colorScheme.surface,
         canvasColor: colorScheme.surface,
+        inputDecorationTheme: buildInputDecorationTheme(colorScheme),
+        elevatedButtonTheme: AppButtonTheme.elevated(colorScheme),
+        filledButtonTheme: AppButtonTheme.filled(colorScheme),
+        outlinedButtonTheme: AppButtonTheme.outlined(colorScheme),
+        textButtonTheme: AppButtonTheme.text(colorScheme),
       );
 
   List<ExtendedColor> get extendedColors => [];

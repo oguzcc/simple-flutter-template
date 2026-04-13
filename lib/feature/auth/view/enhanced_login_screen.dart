@@ -549,11 +549,9 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                // For development, set authenticated state
                 final authCubit = context.read<AuthCubit>();
+                Navigator.of(context).pop();
                 authCubit.setDevAuthenticated();
-                // Navigation will happen automatically via listener
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple,

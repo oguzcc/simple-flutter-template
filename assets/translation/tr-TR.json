@@ -107,5 +107,25 @@
     "timeout": "İstek zaman aşımına uğradı",
     "unknown": "Bilinmeyen hata",
     "default": "Bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+  },
+  "auth": {
+    "logout": "Çıkış Yap",
+    "logoutConfirmTitle": "Çıkış Yap",
+    "logoutConfirmBody": "Çıkış yapmak istediğinden emin misin? Hesabına erişmek için tekrar giriş yapman gerekecek.",
+    "logoutSuccess": "Başarıyla çıkış yapıldı",
+    "loginMethod": "Giriş Yöntemi",
+    "anonymousUser": "Anonim Kullanıcı",
+    "noEmail": "E-posta yok",
+    "guestMode": "Misafir Modu",
+    "guestAccount": "Misafir Hesabı",
+    "guestAccountInfo": "Misafir hesabı kullanıyorsun. Verilerin kalıcı olarak kaydedilmeyebilir. Daha iyi bir deneyim için sosyal hesapla giriş yapmayı düşünebilirsin.",
+    "signInWithApple": "Apple ile giriş yap",
+    "signInWithGoogle": "Google ile giriş yap",
+    "signInAnonymous": "Anonim / Misafir",
+    "signInUnknown": "Bilinmiyor"
+  },
+  "profile": {
+    "account": "Hesap",
+    "userId": "Kullanıcı ID"
   }
 }

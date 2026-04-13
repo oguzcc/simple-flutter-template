@@ -1,6 +1,6 @@
+import 'package:daisy/router/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:daisy/router/screens.dart';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});

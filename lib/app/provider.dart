@@ -31,7 +31,9 @@ List<BlocProvider<StateStreamableSource<Object?>>> provider() {
     BlocProvider<TagCubit>(create: (context) => TagCubit()),
 
     /// Purchase Cubit
-    BlocProvider<PurchaseCubit>(create: (context) => PurchaseCubit()),
+    BlocProvider<PurchaseCubit>(
+      create: (context) => PurchaseCubit(context.read()),
+    ),
 
     /// User Cubit
   ];
