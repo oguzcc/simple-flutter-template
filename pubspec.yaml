@@ -10,14 +10,14 @@ dependencies:
     sdk: flutter
 
   # Firebase
-  firebase_analytics: ^12.4.0
-  firebase_auth: ^6.5.0
-  firebase_core: ^4.8.0
-  firebase_database: ^12.4.0
-  firebase_messaging: ^16.2.1
-  firebase_remote_config: ^6.5.0
-  firebase_storage: ^13.4.0
-  cloud_firestore: ^6.4.0
+  firebase_analytics: ^12.4.1
+  firebase_auth: ^6.5.1
+  firebase_core: ^4.9.0
+  firebase_database: ^12.4.1
+  firebase_messaging: ^16.2.2
+  firebase_remote_config: ^6.5.1
+  firebase_storage: ^13.4.1
+  cloud_firestore: ^6.4.1
 
   # State Management
   flutter_bloc: ^9.1.1
@@ -48,7 +48,7 @@ dependencies:
   sign_in_with_apple: ^8.0.0
 
   # In-App Purchase
-  purchases_flutter: ^10.0.2
+  purchases_flutter: ^10.1.1
 
   # Media & Files
   image_picker: ^1.2.2
@@ -69,14 +69,14 @@ dependencies:
 
   # Functional Programming
   fpdart: ^1.2.0
-  purchases_ui_flutter: ^10.0.2
+  purchases_ui_flutter: ^10.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   # Code Quality
-  analyzer: ^10.0.1
+  analyzer: ^12.1.0
   flutter_lints: ^6.0.0
 
   # Testing
