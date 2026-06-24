@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:daisy/core/bloc/app_update/app_update_cubit.dart';
 import 'package:daisy/core/bloc/conn/conn_cubit.dart';
 import 'package:daisy/core/bloc/lang/lang_cubit.dart';
 import 'package:daisy/feature/auth/cubit/auth_cubit.dart';
@@ -12,6 +13,9 @@ List<BlocProvider<StateStreamableSource<Object?>>> provider() {
     BlocProvider<ConnCubit>(
       create: (context) => ConnCubit(connectivity: Connectivity())..listen(),
     ),
+
+    /// App Update Cubit (force / optional update gate)
+    BlocProvider<AppUpdateCubit>(create: (context) => AppUpdateCubit()),
 
     /// Auth Cubit with social login capability
     BlocProvider<AuthCubit>(

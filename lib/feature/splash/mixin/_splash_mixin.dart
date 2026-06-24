@@ -1,8 +1,6 @@
 part of '../view/splash_screen.dart';
 
 mixin _SplashMixin<T extends StatefulWidget> on State<T> {
-  final _forceUpdateManager = ForceUpdateManager();
-
   String? _appVersion;
   String? _buildNumber;
 
@@ -10,53 +8,56 @@ mixin _SplashMixin<T extends StatefulWidget> on State<T> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 2 saniye default bekleme süresi ekle, sonra diğer işlemleri başlat
-      Future.delayed(const Duration(seconds: 2), () {
-        Future.wait([_fetchVersion(), _checkForceUpdateAndContinue()]);
-      });
+      Future.delayed(const Duration(seconds: 2), _runStartupChecks);
     });
+  }
+
+  Future<void> _runStartupChecks() async {
+    if (!mounted) return;
+
+    final startTime = DateTime.now();
+    final languageCode = context.locale.languageCode;
+    final updateCubit = context.read<AppUpdateCubit>();
+
+    await Future.wait([
+      _fetchVersion(),
+      updateCubit.check(languageCode: languageCode),
+    ]);
+    if (!mounted) return;
+
+    final updateState = updateCubit.state;
+    if (updateState.hasUpdate) {
+      await _showUpdateDialog(updateState);
+      if (updateState.isForced) return;
+      if (!mounted) return;
+    }
+
+    // Keep splash visible for at least 3s total (2s pre-delay + 1s here).
+    const minimumSplashDuration = Duration(seconds: 1);
+    final elapsed = DateTime.now().difference(startTime);
+    if (elapsed < minimumSplashDuration) {
+      await Future<void>.delayed(minimumSplashDuration - elapsed);
+    }
+    if (!mounted) return;
+
+    await _initializeApp();
   }
 
   Future<void> _fetchVersion() async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
-
+      if (!mounted) return;
       setState(() {
         _appVersion = packageInfo.version;
         _buildNumber = packageInfo.buildNumber;
       });
-    } catch (e) {
-      // Hata durumunda değerler null kalır
-    }
-  }
-
-  Future<void> _checkForceUpdateAndContinue() async {
-    // Başlangıç zamanını kaydet (minimum süre kontrolü için)
-    final startTime = DateTime.now();
-
-    // Force update kontrolü
-    await _forceUpdateManager.initialize();
-    final updateStatus = await _forceUpdateManager.checkForUpdate();
-    if (updateStatus.required && mounted) {
-      _showUpdateDialog(updateStatus);
-      return;
-    }
-
-    // Minimum 1 saniye daha bekle (başta zaten 2 saniye beklemiştik)
-    const minimumSplashDuration = Duration(seconds: 1);
-    final elapsedTime = DateTime.now().difference(startTime);
-    if (elapsedTime < minimumSplashDuration) {
-      await Future<void>.delayed(minimumSplashDuration - elapsedTime);
-    }
-
-    // Force update gerekmiyorsa devam et
-    if (mounted) {
-      await _initializeApp();
+    } catch (_) {
+      // Version display is non-critical; fall back to hidden.
     }
   }
 
   void initSplash() {
-    // Initialization happens in initState
+    // Initialization happens in initState.
   }
 
   //* MARK: Uygulama başlatıldığında internet bağlantısını kontrol et
@@ -81,7 +82,6 @@ mixin _SplashMixin<T extends StatefulWidget> on State<T> {
 
     if (!connectivity) {
       if (mounted) {
-        // Internet warning dialog göster
         await showDialog<void>(
           context: context,
           barrierDismissible: false,
@@ -92,7 +92,7 @@ mixin _SplashMixin<T extends StatefulWidget> on State<T> {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _checkInternetConnection(); // Tekrar dene
+                  _checkInternetConnection();
                 },
                 child: const Text('Tekrar Dene'),
               ),
@@ -108,41 +108,28 @@ mixin _SplashMixin<T extends StatefulWidget> on State<T> {
 
   Future<void> _initializeApp() async {
     try {
-      // AuthCubit kontrolü ve authentication durumu
       final authCubit = context.read<AuthCubit?>();
       final homeCubit = context.read<HomeCubit?>();
 
-      // Temel verileri yükle (sadece authenticated kullanıcılar için)
       if (homeCubit != null && authCubit != null && authCubit.isAuthenticated) {
         await Future.wait([homeCubit.fetchInitialData()]);
       }
 
-      // if forceUpdate is required then return
-      final isForceUpdate = await _forceUpdateManager.checkForUpdate();
-      if (isForceUpdate.required) {
-        return;
-      }
+      if (!mounted) return;
+      final auth = context.read<AuthCubit?>();
+      log('🔍 Splash checking auth state: ${auth?.state.authStatus}');
 
-      // Authentication durumuna göre yönlendirme yap
-      if (mounted) {
-        final authCubit = context.read<AuthCubit?>();
-        log('🔍 Splash checking auth state: ${authCubit?.state.authStatus}');
-
-        if (authCubit != null &&
-            authCubit.state.authStatus == AuthStatus.authenticated) {
-          log('✅ User authenticated, navigating to home');
-          context.goNamed(Screens.home.name);
-        } else {
-          log('❌ User not authenticated, navigating to login');
-          context.goNamed(Screens.enhancedLogin.name);
-        }
+      if (auth != null && auth.state.authStatus == AuthStatus.authenticated) {
+        log('✅ User authenticated, navigating to home');
+        context.goNamed(Screens.home.name);
+      } else {
+        log('❌ User not authenticated, navigating to login');
+        context.goNamed(Screens.enhancedLogin.name);
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Ana veri yüklenirken hata oluştu: $e');
       }
-
-      // Hata olsa bile navigasyona devam et - default olarak login'e git
       if (mounted) {
         log('⚠️ Error occurred, defaulting to login');
         context.goNamed(Screens.enhancedLogin.name);
@@ -150,80 +137,74 @@ mixin _SplashMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  void _showUpdateDialog(ForceUpdateStatus status) {
-    final isForceUpdate = status.isForceUpdate;
+  Future<void> _showUpdateDialog(AppUpdateState status) {
+    final isForceUpdate = status.isForced;
+    final theme = Theme.of(context);
 
-    WoltModalSheet.show<void>(
+    return WoltModalSheet.show<void>(
       context: context,
       pageListBuilder: (context) => [
         WoltModalSheetPage(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+          backgroundColor: theme.colorScheme.surface,
+          surfaceTintColor: theme.colorScheme.surfaceTint,
           hasSabGradient: false,
           topBarTitle: Text(
-            'Güncelleme Gerekli',
-            style: Theme.of(context).textTheme.titleLarge,
+            (isForceUpdate
+                    ? LocaleKeys.update_title
+                    : LocaleKeys.update_titleOptional)
+                .tr(),
+            style: theme.textTheme.titleLarge,
           ),
           isTopBarLayerAlwaysVisible: true,
           trailingNavBarWidget: isForceUpdate
               ? const SizedBox.shrink()
               : IconButton(
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    await _initializeApp();
-                  },
+                  onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.close),
                 ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 16),
-              Text(
-                status.message ??
-                    'Uygulamanın yeni bir sürümü mevcut. Lütfen güncelleyin.',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (status.storeUrl != null) {
-                      await launchUrl(
-                        Uri.parse(status.storeUrl!),
-                        mode: LaunchMode.externalApplication,
-                      );
-                      exit(0);
-                    }
-                  },
-                  child: const Text('Güncelle'),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 16),
+                Text(
+                  status.message ?? LocaleKeys.update_messageDefault.tr(),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge,
                 ),
-              ),
-              if (!isForceUpdate) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
-                  child: TextButton(
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                      await _initializeApp();
-                    },
-                    child: const Text('Güncelleme Yapmadan Devam Et'),
+                  child: ElevatedButton(
+                    onPressed: () => _openStore(status.storeUrl),
+                    child: Text(LocaleKeys.update_actionUpdate.tr()),
                   ),
                 ),
+                if (!isForceUpdate) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(LocaleKeys.update_actionLater.tr()),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 24),
               ],
-            ],
+            ),
           ),
         ),
       ],
-      onModalDismissedWithBarrierTap: isForceUpdate
-          ? null
-          : () async {
-              Navigator.of(context).pop();
-              await _initializeApp();
-            },
       barrierDismissible: !isForceUpdate,
     );
+  }
+
+  Future<void> _openStore(String? storeUrl) async {
+    if (storeUrl == null || storeUrl.isEmpty) return;
+    final uri = Uri.tryParse(storeUrl);
+    if (uri == null) return;
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 }

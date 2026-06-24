@@ -1,234 +1,153 @@
 import 'dart:io';
 
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
+
+enum UpdateRequirement { none, optional, forced }
+
+@immutable
+class ForceUpdateResult {
+  const ForceUpdateResult({
+    required this.requirement,
+    this.message,
+    this.storeUrl,
+  });
+
+  const ForceUpdateResult.none()
+      : requirement = UpdateRequirement.none,
+        message = null,
+        storeUrl = null;
+
+  final UpdateRequirement requirement;
+  final String? message;
+  final String? storeUrl;
+
+  bool get hasUpdate => requirement != UpdateRequirement.none;
+  bool get isForced => requirement == UpdateRequirement.forced;
+}
 
 class ForceUpdateManager {
-  final _remoteConfig = FirebaseRemoteConfig.instance;
+  ForceUpdateManager({
+    FirebaseRemoteConfig? remoteConfig,
+    PackageInfo? packageInfo,
+  })  : _remoteConfig = remoteConfig ?? FirebaseRemoteConfig.instance,
+        _packageInfoOverride = packageInfo;
 
-  /// Checks the remote config and displays an update dialog if needed.
-  ///
-  /// - If [ForceUpdateStatus.required] is `true`, shows a non-dismissible
-  ///   dialog with only an "Update" action that opens the store URL.
-  /// - If an update is available but not forced, shows a dismissible dialog
-  ///   with "Update" + "Later" actions.
-  /// - If no update is needed, returns without showing anything.
-  Future<void> showUpdateDialogIfNeeded(BuildContext context) async {
-    final status = await checkForUpdate();
-    if (status.message == null || status.storeUrl == null) return;
-    if (!context.mounted) return;
+  final FirebaseRemoteConfig _remoteConfig;
+  final PackageInfo? _packageInfoOverride;
+  bool _initialized = false;
 
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: !status.required,
-      builder: (dialogContext) => PopScope(
-        canPop: !status.required,
-        child: AlertDialog(
-          title: Text(
-            status.required ? 'Update Required' : 'Update Available',
-          ),
-          content: Text(status.message!),
-          actions: [
-            if (!status.required)
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text('Later'),
-              ),
-            FilledButton(
-              onPressed: () async {
-                final uri = Uri.tryParse(status.storeUrl!);
-                if (uri != null) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                }
-                if (!status.required && dialogContext.mounted) {
-                  Navigator.of(dialogContext).pop();
-                }
-              },
-              child: const Text('Update'),
-            ),
-          ],
-        ),
-      ),
-    );
+  static const _kAndroidMinVersion = 'android_min_version';
+  static const _kIosMinVersion = 'ios_min_version';
+  static const _kIsForceUpdateRequired = 'is_force_update_required';
+  static const _kAndroidStoreUrl = 'android_store_url';
+  static const _kIosStoreUrl = 'ios_store_url';
+  static const _kUpdateMessageTr = 'update_message_tr';
+  static const _kUpdateMessageEn = 'update_message_en';
+
+  Future<ForceUpdateResult> evaluate({String? languageCode}) async {
+    await _ensureInitialized();
+    try {
+      final packageInfo =
+          _packageInfoOverride ?? await PackageInfo.fromPlatform();
+
+      final isAndroid = Platform.isAndroid;
+      final minVersion = _remoteConfig
+          .getString(isAndroid ? _kAndroidMinVersion : _kIosMinVersion);
+      final storeUrl = _remoteConfig
+          .getString(isAndroid ? _kAndroidStoreUrl : _kIosStoreUrl);
+
+      if (minVersion.isEmpty || storeUrl.isEmpty) {
+        return const ForceUpdateResult.none();
+      }
+
+      final needsUpdate = _isVersionLower(
+        currentVersion: packageInfo.version,
+        currentBuild: int.tryParse(packageInfo.buildNumber) ?? 0,
+        minVersion: minVersion,
+      );
+      if (!needsUpdate) return const ForceUpdateResult.none();
+
+      final isForced = _remoteConfig.getBool(_kIsForceUpdateRequired);
+      return ForceUpdateResult(
+        requirement:
+            isForced ? UpdateRequirement.forced : UpdateRequirement.optional,
+        message: _resolveMessage(languageCode),
+        storeUrl: storeUrl,
+      );
+    } catch (e, stack) {
+      debugPrint('ForceUpdateManager.evaluate failed: $e');
+      debugPrint('$stack');
+      return const ForceUpdateResult.none();
+    }
   }
 
-  Future<void> initialize() async {
+  Future<void> _ensureInitialized() async {
+    if (_initialized) return;
     try {
+      await _remoteConfig.setDefaults(const {
+        _kAndroidMinVersion: '0.0.0',
+        _kIosMinVersion: '0.0.0',
+        _kIsForceUpdateRequired: false,
+        _kAndroidStoreUrl: '',
+        _kIosStoreUrl: '',
+        _kUpdateMessageTr: '',
+        _kUpdateMessageEn: '',
+      });
       await _remoteConfig.setConfigSettings(
         RemoteConfigSettings(
           fetchTimeout: const Duration(minutes: 1),
-          minimumFetchInterval: Duration.zero,
+          minimumFetchInterval:
+              kDebugMode ? Duration.zero : const Duration(hours: 1),
         ),
       );
-
-      await _remoteConfig.fetch();
-      await _remoteConfig.activate();
-    } catch (e, stackTrace) {
-      debugPrint('❌ Remote config initialization failed: $e');
-      debugPrint('$stackTrace');
+      await _remoteConfig.fetchAndActivate();
+      _initialized = true;
+    } catch (e, stack) {
+      debugPrint('ForceUpdateManager init failed: $e');
+      debugPrint('$stack');
     }
   }
 
-  Future<ForceUpdateStatus> checkForUpdate() async {
-    try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version;
-
-      final platform = Platform.isAndroid ? 'android' : 'ios';
-      debugPrint('🔍 Platform: $platform');
-      debugPrint('📱 Current App Version: $currentVersion');
-
-      // Model üzerinden değerleri alalım
-      final config = ForceUpdateConfig(
-        androidMinVersion: _remoteConfig.getString('android_min_version'),
-        androidCurrentVersion: _remoteConfig.getString(
-          'android_current_version',
-        ),
-        iosMinVersion: _remoteConfig.getString('ios_min_version'),
-        iosCurrentVersion: _remoteConfig.getString('ios_current_version'),
-        isUpdateRequired: _remoteConfig.getBool('is_update_required'),
-        isForceUpdateRequired: _remoteConfig.getBool(
-          'is_force_update_required',
-        ),
-        androidStoreUrl: _remoteConfig.getString('android_store_url'),
-        iosStoreUrl: _remoteConfig.getString('ios_store_url'),
-        updateMessageTr: _remoteConfig.getString('update_message_tr'),
-        updateMessageEn: _remoteConfig.getString('update_message_en'),
-      );
-
-      debugPrint('⚙️ Remote Config Values:');
-      debugPrint('Android Min Version: ${config.androidMinVersion}');
-      debugPrint('Android Current Version: ${config.androidCurrentVersion}');
-      debugPrint('iOS Min Version: ${config.iosMinVersion}');
-      debugPrint('iOS Current Version: ${config.iosCurrentVersion}');
-      debugPrint('Update Required: ${config.isUpdateRequired}');
-      debugPrint('Force Update Required: ${config.isForceUpdateRequired}');
-
-      final minVersion = platform == 'android'
-          ? config.androidMinVersion
-          : config.iosMinVersion;
-      final currentRemoteVersion = platform == 'android'
-          ? config.androidCurrentVersion
-          : config.iosCurrentVersion;
-      final storeUrl = platform == 'android'
-          ? config.androidStoreUrl
-          : config.iosStoreUrl;
-
-      debugPrint('📊 Version Comparison:');
-      debugPrint('Min Required Version: $minVersion');
-      debugPrint('Current Remote Version: $currentRemoteVersion');
-
-      // Versiyon kontrolü
-      final needsUpdate = _isVersionLower(currentVersion, minVersion);
-      debugPrint('🔄 Needs Update: $needsUpdate');
-
-      final message = Platform.localeName.split('_')[0] == 'tr'
-          ? config.updateMessageTr
-          : config.updateMessageEn;
-
-      if (needsUpdate) {
-        return ForceUpdateStatus(
-          required: config.isForceUpdateRequired,
-          message: message,
-          storeUrl: storeUrl,
-        );
-      }
-
-      if (needsUpdate && config.isForceUpdateRequired) {
-        return ForceUpdateStatus(
-          required: true,
-          message: message,
-          storeUrl: storeUrl,
-          isForceUpdate: true,
-        );
-      }
-
-      // Güncelleme gerekmiyorsa
-      debugPrint('✅ No Update Required');
-      return ForceUpdateStatus(required: false);
-    } catch (e) {
-      debugPrint('❌ Error checking for updates: $e');
-      return ForceUpdateStatus(required: false);
-    }
+  String? _resolveMessage(String? languageCode) {
+    final tr = _remoteConfig.getString(_kUpdateMessageTr);
+    final en = _remoteConfig.getString(_kUpdateMessageEn);
+    final code = (languageCode ?? 'en').toLowerCase();
+    final message = code == 'tr' ? tr : en;
+    return message.isEmpty ? null : message;
   }
 
-  bool _isVersionLower(String currentVersion, String minVersion) {
-    final currentParts = currentVersion.split('+');
+  bool _isVersionLower({
+    required String currentVersion,
+    required int currentBuild,
+    required String minVersion,
+  }) {
     final minParts = minVersion.split('+');
+    final currentNumbers = _toIntList(currentVersion.split('+').first);
+    final minNumbers = _toIntList(minParts.first);
 
-    final currentVersionParts = currentParts[0]
-        .split('.')
-        .map((e) => int.tryParse(e) ?? 0)
-        .toList();
-    final minVersionParts = minParts[0]
-        .split('.')
-        .map((e) => int.tryParse(e) ?? 0)
-        .toList();
-
-    while (currentVersionParts.length < minVersionParts.length) {
-      currentVersionParts.add(0);
+    final length = currentNumbers.length > minNumbers.length
+        ? currentNumbers.length
+        : minNumbers.length;
+    while (currentNumbers.length < length) {
+      currentNumbers.add(0);
     }
-    while (minVersionParts.length < currentVersionParts.length) {
-      minVersionParts.add(0);
+    while (minNumbers.length < length) {
+      minNumbers.add(0);
     }
 
-    // Versiyon numaralarını karşılaştır (1.0.0)
-    for (var i = 0; i < minVersionParts.length; i++) {
-      if (currentVersionParts[i] < minVersionParts[i]) {
-        return true;
-      }
-      if (currentVersionParts[i] > minVersionParts[i]) {
-        return false;
-      }
+    for (var i = 0; i < length; i++) {
+      if (currentNumbers[i] < minNumbers[i]) return true;
+      if (currentNumbers[i] > minNumbers[i]) return false;
     }
 
-    // Versiyon numaraları eşitse build numaralarını karşılaştır (+36)
-    final currentBuild =
-        int.tryParse(currentParts.length > 1 ? currentParts[1] : '0') ?? 0;
-    final minBuild = int.tryParse(minParts.length > 1 ? minParts[1] : '0') ?? 0;
-
-    // Build numarası küçükse güncelleme gerekli
+    final minBuild =
+        minParts.length > 1 ? int.tryParse(minParts[1]) ?? 0 : 0;
     return currentBuild < minBuild;
   }
-}
 
-class ForceUpdateConfig {
-  ForceUpdateConfig({
-    required this.androidMinVersion,
-    required this.androidCurrentVersion,
-    required this.iosMinVersion,
-    required this.iosCurrentVersion,
-    required this.isUpdateRequired,
-    required this.isForceUpdateRequired,
-    required this.androidStoreUrl,
-    required this.iosStoreUrl,
-    required this.updateMessageTr,
-    required this.updateMessageEn,
-  });
-
-  final String androidMinVersion;
-  final String androidCurrentVersion;
-  final String iosMinVersion;
-  final String iosCurrentVersion;
-  final bool isUpdateRequired;
-  final bool isForceUpdateRequired;
-  final String androidStoreUrl;
-  final String iosStoreUrl;
-  final String updateMessageTr;
-  final String updateMessageEn;
-}
-
-class ForceUpdateStatus {
-  ForceUpdateStatus({
-    required this.required,
-    this.message,
-    this.storeUrl,
-    this.isForceUpdate = false,
-  });
-  final bool required;
-  final String? message;
-  final String? storeUrl;
-  final bool isForceUpdate;
+  List<int> _toIntList(String version) {
+    return version.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+  }
 }

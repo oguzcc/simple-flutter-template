@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 
+import 'package:daisy/core/bloc/app_update/app_update_cubit.dart';
 import 'package:daisy/core/bloc/conn/conn_cubit.dart';
-import 'package:daisy/core/manager/remote/force_update_manager.dart';
 import 'package:daisy/feature/auth/cubit/auth_cubit.dart';
 import 'package:daisy/feature/home/cubit/home_cubit.dart';
+import 'package:daisy/localization/locale_keys/locale_keys.g.dart';
 import 'package:daisy/router/screens.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';

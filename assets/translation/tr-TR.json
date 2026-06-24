@@ -127,5 +127,12 @@
   "profile": {
     "account": "Hesap",
     "userId": "Kullanıcı ID"
+  },
+  "update": {
+    "title": "Güncelleme Gerekli",
+    "titleOptional": "Güncelleme Mevcut",
+    "messageDefault": "Uygulamanın yeni bir sürümü mevcut. Lütfen devam etmek için güncelleyin.",
+    "actionUpdate": "Güncelle",
+    "actionLater": "Daha Sonra"
   }
 }

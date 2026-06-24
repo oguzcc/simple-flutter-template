@@ -152,11 +152,10 @@ iOS Google Sign-In için ayrıca [ios/Runner/Info.plist](ios/Runner/Info.plist)'
 ### 9. (Opsiyonel) Firebase Remote Config — Force/Soft Update
 
 [ForceUpdateManager](lib/core/manager/remote/force_update_manager.dart) kullanılacaksa Firebase Remote Config'e şu anahtarları ekle:
-- `android_min_version`, `ios_min_version`
-- `android_current_version`, `ios_current_version`
-- `is_force_update_required` (bool)
+- `android_min_version`, `ios_min_version` (semver, ör. `1.2.0` veya `1.2.0+45`)
+- `is_force_update_required` (bool) — `true` ise modal kapatılamaz
 - `android_store_url`, `ios_store_url`
-- `update_message_tr`, `update_message_en`
+- `update_message_tr`, `update_message_en` (opsiyonel; boş bırakılırsa `LocaleKeys.update_messageDefault` kullanılır)
 
 ### 10. Doğrulama
 
@@ -280,20 +279,29 @@ final hasCustomEntitlement =
 
 ## Force / Soft Update
 
-[ForceUpdateManager](lib/core/manager/remote/force_update_manager.dart) Firebase Remote Config üzerinden versiyon politikasını okur. Başlangıçta çağır:
+Versiyon politikası [ForceUpdateManager](lib/core/manager/remote/force_update_manager.dart) ile Firebase Remote Config üzerinden okunur. Uygulama genelinde [AppUpdateCubit](lib/core/bloc/app_update/app_update_cubit.dart) bunu sarar ve splash başlangıcında + uygulama foreground'a döndüğünde otomatik tekrar kontrol eder.
 
 ```dart
-final manager = ForceUpdateManager();
-await manager.initialize();
-if (context.mounted) {
-  await manager.showUpdateDialogIfNeeded(context);
-}
+// Provider olarak (lib/app/provider.dart içinde zaten kayıtlı)
+BlocProvider<AppUpdateCubit>(create: (_) => AppUpdateCubit()),
+
+// Kontrol tetikleme (splash bunu otomatik yapar)
+await context.read<AppUpdateCubit>().check(
+  languageCode: context.locale.languageCode,
+);
+
+final state = context.read<AppUpdateCubit>().state;
+if (state.isForced) { /* dismissless modal göster */ }
+else if (state.hasUpdate) { /* opsiyonel modal */ }
 ```
 
-`showUpdateDialogIfNeeded`:
-- Force update gerekirse → dismissless dialog, sadece "Update"
-- Soft update önerisiyse → "Later" + "Update" butonları
-- "Update"'e basıldığında `url_launcher` ile store'a yönlendirir
+Davranış:
+- `forced` → modal kapatılamaz, sadece "Update" butonu store'a yönlendirir.
+- `optional` → "Later" + "Update" butonları; kullanıcı uygulamaya devam edebilir.
+- Boş / hatalı Remote Config → güncelleme yok kabul edilir.
+- `kDebugMode`: her açılışta fetch; release: 1 saatte bir.
+
+Yerelleştirme: modal başlık/buton stringleri `easy_localization` ile [`update.*`](assets/translation/en-US.json) anahtarları üzerinden gelir; Remote Config'deki `update_message_*` alanları opsiyonel override'dır.
 
 Remote Config anahtarları: `android_min_version`, `ios_min_version`, `is_force_update_required`, `android_store_url`, `ios_store_url`, `update_message_tr`, `update_message_en`.
 

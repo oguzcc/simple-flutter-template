@@ -151,5 +151,12 @@
   "profile": {
     "account": "Account",
     "userId": "User ID"
+  },
+  "update": {
+    "title": "Update Required",
+    "titleOptional": "Update Available",
+    "messageDefault": "A new version of the app is available. Please update to continue.",
+    "actionUpdate": "Update",
+    "actionLater": "Later"
   }
 }

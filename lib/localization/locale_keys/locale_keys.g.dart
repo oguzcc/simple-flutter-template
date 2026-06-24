@@ -119,5 +119,11 @@ abstract class  LocaleKeys {
   static const profile_account = 'profile.account';
   static const profile_userId = 'profile.userId';
   static const profile = 'profile';
+  static const update_title = 'update.title';
+  static const update_titleOptional = 'update.titleOptional';
+  static const update_messageDefault = 'update.messageDefault';
+  static const update_actionUpdate = 'update.actionUpdate';
+  static const update_actionLater = 'update.actionLater';
+  static const update = 'update';
 
 }
