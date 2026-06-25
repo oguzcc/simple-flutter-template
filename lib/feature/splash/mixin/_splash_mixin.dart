@@ -126,6 +126,8 @@ mixin _SplashMixin<T extends StatefulWidget> on State<T> {
         log('❌ User not authenticated, navigating to login');
         context.goNamed(Screens.enhancedLogin.name);
       }
+      // Router is live; flush notifications that arrived during startup.
+      NotificationQueueManager.instance.markAppAsReady();
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Ana veri yüklenirken hata oluştu: $e');
@@ -134,6 +136,7 @@ mixin _SplashMixin<T extends StatefulWidget> on State<T> {
         log('⚠️ Error occurred, defaulting to login');
         context.goNamed(Screens.enhancedLogin.name);
       }
+      NotificationQueueManager.instance.markAppAsReady();
     }
   }
 

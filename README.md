@@ -305,6 +305,66 @@ Yerelleştirme: modal başlık/buton stringleri `easy_localization` ile [`update
 
 Remote Config anahtarları: `android_min_version`, `ios_min_version`, `is_force_update_required`, `android_store_url`, `ios_store_url`, `update_message_tr`, `update_message_en`.
 
+## Push Notifications (FCM)
+
+Push akışı Firebase Cloud Messaging üzerinden çalışır ve şu parçalardan oluşur:
+
+| Dosya | Sorumluluk |
+|-------|-----------|
+| [`FcmService`](lib/core/manager/notification/fcm_service.dart) | Tek giriş noktası: izin, token, foreground/opened/initial mesaj akışı, topic helper'ları. |
+| [`firebaseMessagingBackgroundHandler`](lib/core/manager/notification/fcm_background_handler.dart) | Top-level (`@pragma('vm:entry-point')`) background handler — Android için zorunlu. |
+| [`LocalNotificationHandler`](lib/core/manager/notification/local_notification_handler.dart) | Android'de foreground mesajları için lokal notification gösterir; iOS'ta sistem banner'ı otomatik. |
+| [`NotificationQueueManager`](lib/data/notification/notification_queue_manager.dart) | Splash hazır olana kadar gelen aksiyonları kuyruğa alır, hazır olunca işler (`deepLink`/`navigation`/`general`). |
+
+Bootstrap (`lib/app/bootstrap.dart` → `_FirebaseMixin`) `FcmService().initialize()` çağırır; token alma `unawaited` ile fire-and-forget'tir (iOS Simulator APNS yokken bootstrap'i bloklamasın diye). Token backend'e göndermek için `firebase_mixin.dart` içindeki `TODO(template)` satırına dokunmak yeterli.
+
+**Backend payload örnekleri**
+
+```jsonc
+// Notification mesajı (sistem hem ön plan hem arka planda banner gösterir).
+{
+  "message": {
+    "token": "<device-fcm-token>",
+    "notification": { "title": "Hello", "body": "World" },
+    "data": { "route": "/profile" }      // tap → goRouter.go('/profile')
+  }
+}
+
+// Data-only (sessiz / arka planda da iletilir).
+{
+  "message": {
+    "token": "<device-fcm-token>",
+    "data": {
+      "title": "Promo",
+      "body": "30% off this weekend",
+      "url": "https://example.com/promo"  // tap → external browser
+    }
+  }
+}
+```
+
+`data.route` veya `data.url` taşıyan payload'lar tap'lendiğinde otomatik olarak `NotificationQueueManager` üzerinden yönlendirilir; sonradan eklenmek istenen tipler için [`NotificationActionType`](lib/data/notification/models/notification_action.dart) genişletilebilir.
+
+**Manuel kurulum adımları**
+
+Android:
+- `AndroidManifest.xml`'de `POST_NOTIFICATIONS` izni ve default channel/icon/color meta-data eklendi. Renk / icon değiştirmek istersen `mipmap/launcher_icon` ve `@android:color/white` referanslarını güncelle.
+- Android 13+ için runtime izin: [`PermissionClient.requestNotificationPermission()`](lib/core/manager/local/permission_client.dart) tetiklenmeli (örn. onboarding ekranında).
+
+iOS:
+- Xcode → Runner → Signing & Capabilities → **Push Notifications** capability'sini her flavor için ekle.
+- `Runner.entitlements`'taki `aps-environment` debug için `development`. Store/TestFlight build'lerinde Xcode bunu `production`a çevirir (kapasiteyi açtığında otomatik).
+- Firebase Console → Project Settings → Cloud Messaging → Apple → APNs Auth Key (`.p8`) yükle.
+- Simülatörde push almak için Xcode 14+ gerekir; aksi halde `getToken()` `null` döner ve loglarda `APNS token not ready` mesajı görülür (beklenen davranış).
+
+**Topic kullanımı**
+
+```dart
+final fcm = FcmService();
+await fcm.subscribeToTopic('news_en');
+await fcm.unsubscribeFromTopic('news_en');
+```
+
 ## Scripts
 
 `script/` altındaki yardımcı shell script'ler:

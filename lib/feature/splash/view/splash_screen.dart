@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:daisy/core/bloc/app_update/app_update_cubit.dart';
 import 'package:daisy/core/bloc/conn/conn_cubit.dart';
+import 'package:daisy/data/notification/notification_queue_manager.dart';
 import 'package:daisy/feature/auth/cubit/auth_cubit.dart';
 import 'package:daisy/feature/home/cubit/home_cubit.dart';
 import 'package:daisy/localization/locale_keys/locale_keys.g.dart';

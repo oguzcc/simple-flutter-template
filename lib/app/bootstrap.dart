@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:daisy/core/analytics/analytics_service.dart';
 import 'package:daisy/core/config/app_flavor.dart';
-import 'package:daisy/core/manager/firebase/firebase_client.dart';
+import 'package:daisy/core/manager/notification/fcm_service.dart';
 import 'package:daisy/core/manager/validation/environment_validation_service.dart';
 import 'package:daisy/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';

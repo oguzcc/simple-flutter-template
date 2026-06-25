@@ -24,5 +24,20 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<!--
+		Push Notifications (APNS / FCM)
+
+		`development` for debug builds. Switch to `production` from
+		Xcode → Signing & Capabilities → Push Notifications for App
+		Store / TestFlight builds (Xcode manages this per build config).
+
+		Also required:
+		  * Push Notifications capability enabled in Xcode for the Runner
+		    target on every flavor (dev/stg/prod).
+		  * APNs Auth Key (or certificates) uploaded in Firebase Console
+		    → Project Settings → Cloud Messaging → Apple app.
+	-->
+	<key>aps-environment</key>
+	<string>development</string>
 </dict>
 </plist>
