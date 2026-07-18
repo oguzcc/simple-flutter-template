@@ -57,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen> with _SplashMixin {
                 color: Colors.white,
                 child: Center(
                   child: Image.asset(
-                    'assets/images/splash.png',
+                    'assets/image/splash_logo.png',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -97,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen> with _SplashMixin {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Image.asset(
-                            'assets/images/logo.png',
+                            'assets/image/app_logo.png',
                             height: 120,
                             fit: BoxFit.contain,
                           ),
