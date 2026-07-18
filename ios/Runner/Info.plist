@@ -28,6 +28,30 @@
     <string>LaunchScreen</string>
     <key>UIMainStoryboardFile</key>
     <string>Main</string>
+    <!-- UIScene lifecycle support (required on upcoming iOS versions).
+         FlutterSceneDelegate is provided by the Flutter engine and bridges the
+         UIScene lifecycle to FlutterAppDelegate. Do not point this at a custom
+         SceneDelegate unless it subclasses FlutterSceneDelegate.
+         https://docs.flutter.dev/release/breaking-changes/uiscenedelegate -->
+    <key>UIApplicationSceneManifest</key>
+    <dict>
+      <key>UIApplicationSupportsMultipleScenes</key>
+      <false/>
+      <key>UISceneConfigurations</key>
+      <dict>
+        <key>UIWindowSceneSessionRoleApplication</key>
+        <array>
+          <dict>
+            <key>UISceneClassName</key>
+            <string>UIWindowScene</string>
+            <key>UISceneDelegateClassName</key>
+            <string>FlutterSceneDelegate</string>
+            <key>UISceneConfigurationName</key>
+            <string>flutter</string>
+          </dict>
+        </array>
+      </dict>
+    </dict>
     <key>UISupportedInterfaceOrientations</key>
     <array>
       <string>UIInterfaceOrientationPortrait</string>
